@@ -172,11 +172,11 @@ public class MOSAxiomTreeParser {
                         branch()
                                 .expectPrefixKeyword(EQUIVALENT_PROPERTIES).expectObjectPropertyExpression("p2")
                                 .create(e -> df.getOWLEquivalentObjectPropertiesAxiom(e.objProp("p"), e.objPropExpr("p2")))//,
-//                                        branch()
-//                                                .expectList("ch", CHAIN_CONNECT, new ObjPropMatcher())
-//                                                .expectKeyword(SUB_PROPERTY_CHAIN)
-//                                                .expectObjectProperty("s")
-//                                                .create(e -> df.getOWLSubPropertyChainOfAxiom(e.getList("ch"), e.objProp("s")))
+//                        branch()
+//                                .expectList("ch", CHAIN_CONNECT, new ObjPropMatcher())
+//                                .expectKeyword(SUB_PROPERTY_CHAIN)
+//                                .expectObjectProperty("s")
+//                                .create(e -> df.getOWLSubPropertyChainOfAxiom(e.getList("ch"), e.objProp("s")))
                 );
     }
 }
