@@ -19,14 +19,16 @@ public class AddAxiomCommand implements Command {
     Logger logger = LoggerFactory.getLogger(AddAxiomCommand.class);
 
     private final Helper helper;
+    private final OWLAnnotationProperty defaultSearchLabel;
 
-    public AddAxiomCommand(Helper helper) {
+    public AddAxiomCommand(Helper helper, OWLAnnotationProperty defaultSearchLabel) {
         this.helper = helper;
+        this.defaultSearchLabel = defaultSearchLabel;
     }
 
     @Override
     public List<String> autocomplete(UserInput input, Context context) {
-        return FinderUtils.annotationContains(input.autocompleteWord(), helper.df.getRDFSLabel(), helper).stream()
+        return FinderUtils.annotationContains(input.autocompleteWord(), defaultSearchLabel, helper).stream()
                 .map(helper::render).collect(Collectors.toList());
     }
 

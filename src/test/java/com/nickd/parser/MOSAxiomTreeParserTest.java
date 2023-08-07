@@ -122,6 +122,13 @@ public class MOSAxiomTreeParserTest {
         }
     }
 
+    @Test
+    public void annotationAssertionAxiom() {
+        OWLNamedIndividual a = ind("a");
+        OWLAxiom expected = df.getOWLAnnotationAssertionAxiom(annotP("ap"), a.getIRI(), lit("value"));
+        assertEquals(expected, parser.parse("a ap \"value\""));
+    }
+
     private OWLClass cls(String name) {
         OWLClass cls = df.getOWLClass(name);
         when(checker.getOWLClass(name)).thenReturn(cls);
@@ -143,6 +150,12 @@ public class MOSAxiomTreeParserTest {
     private OWLDataProperty dataP(String name) {
         OWLDataProperty prop = df.getOWLDataProperty(name);
         when(checker.getOWLDataProperty(name)).thenReturn(prop);
+        return prop;
+    }
+
+    private OWLAnnotationProperty annotP(String name) {
+        OWLAnnotationProperty prop = df.getOWLAnnotationProperty(name);
+        when(checker.getOWLAnnotationProperty(name)).thenReturn(prop);
         return prop;
     }
 

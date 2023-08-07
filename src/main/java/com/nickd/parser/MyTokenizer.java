@@ -8,6 +8,7 @@ public class MyTokenizer {
     public static final char DELIM = ' ';
     private static final String PAREN_OPEN = "(";
     private static final String PAREN_CLOSE = ")";
+    public static final String QUOTE = "\"";
     private final String originalText;
     private int pointer;
     private final List<String> tokens;
@@ -39,6 +40,14 @@ public class MyTokenizer {
     public String consumeNext() {
         String remainder = remainder();
 
+        if (remainder.startsWith(QUOTE)) {
+            String token = quotedString(remainder);
+            pointer += token.length();
+            pointer = skipWhitespace(DELIM, pointer);
+            tokens.add(0, token);
+            return token;
+        }
+
         if (remainder.startsWith(PAREN_OPEN)|| remainder.startsWith(PAREN_CLOSE)) {
             String token = remainder.substring(0, 1);
             pointer++;
@@ -58,6 +67,11 @@ public class MyTokenizer {
         pointer = skipWhitespace(DELIM, pointer);
         tokens.add(0, token);
         return token;
+    }
+
+    private String quotedString(String remainder) {
+        // include quotes
+        return remainder.substring(0, remainder.indexOf(QUOTE, 1) + 1);
     }
 
     private int skipWhitespace(char whitespace, int i) {

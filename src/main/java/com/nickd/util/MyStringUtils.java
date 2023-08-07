@@ -60,7 +60,7 @@ public class MyStringUtils {
         return out;
     }
 
-    private static String stripQuotes(String s) {
+    public static String stripQuotes(String s) {
         return (s.startsWith("\"") && (s.endsWith("\""))) ? s.substring(1, s.length()-1) : s;
     }
 }

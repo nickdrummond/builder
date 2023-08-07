@@ -75,7 +75,7 @@ public class Helper {
         timeToLoad = System.currentTimeMillis() - start;
 
         df = mngr.getOWLDataFactory();
-        sfp = new SimpleShortFormProvider();
+        sfp = new SimpleShortFormProvider(); // TODO should use the given annotation prop (EDITOR_LABEL)
         BidirectionalShortFormProviderAdapter cache = new BidirectionalShortFormProviderAdapter(sfp);
         ont.getSignature(Imports.INCLUDED).forEach(cache::add);
         checker = new ShortFormEntityChecker(cache);

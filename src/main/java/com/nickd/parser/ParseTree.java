@@ -69,6 +69,10 @@ public class ParseTree implements OWLObjectProvider {
         return expect(p, new DataPropMatcher());
     }
 
+    public ParseTree expectAnnotationProperty(String p) {
+        return expect(p, new AnnotationPropMatcher());
+    }
+
     public ParseTree expectKeyword(ManchesterOWLSyntax manchesterOWLSyntax) {
         return expect(manchesterOWLSyntax.toString(), new KeywordMatcher(manchesterOWLSyntax));
     }
@@ -96,6 +100,11 @@ public class ParseTree implements OWLObjectProvider {
     }
 
     @Override
+    public OWLAnnotationProperty annotProp(String key) {
+        return matchers.get(key).getAnnotationProperty();
+    }
+
+    @Override
     public OWLIndividual ind(String key) {
         return matchers.get(key).getIndividual();
     }
@@ -114,7 +123,6 @@ public class ParseTree implements OWLObjectProvider {
     public OWLLiteral lit(String key) {
         return matchers.get(key).getLiteral();
     }
-
 
     public OWLAxiom getAxiom() {
         if (axiom == null) {

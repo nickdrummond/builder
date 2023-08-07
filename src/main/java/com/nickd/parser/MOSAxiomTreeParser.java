@@ -58,6 +58,10 @@ public class MOSAxiomTreeParser {
                                                 .expectKeyword(TYPE)
                                                 .expectClassExpression("A")
                                                 .create(e -> df.getOWLClassAssertionAxiom(e.clsExpr("A"), e.ind("a"))),
+                                        ParseTree.branch()
+                                                .expectAnnotationProperty("p")
+                                                .expectLiteral("v")
+                                                .create(e -> df.getOWLAnnotationAssertionAxiom(e.annotProp("p"), e.ind("a").asOWLNamedIndividual().getIRI(), e.lit("v"))),
                                         ParseTree.branch() // expected path
                                                 .expectObjectProperty("p")
                                                 .expectIndividual("b")

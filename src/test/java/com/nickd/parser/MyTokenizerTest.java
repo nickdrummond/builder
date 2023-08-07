@@ -84,4 +84,34 @@ public class MyTokenizerTest {
         assertEquals(List.of(")", "corbyn", "beegees", "(", "ABBA"), t.tokens());
         assertEquals(21, t.getPointer());
     }
+
+    @Test
+    public void shouldTokenizeQuotedTextCorrectly() {
+        MyTokenizer t = new MyTokenizer("this is \"five tokens\" not six");
+        assertEquals("this", t.consumeNext());
+        assertEquals("is", t.consumeNext());
+        assertEquals("\"five tokens\"", t.consumeNext());
+        assertEquals("not", t.consumeNext());
+        assertEquals("six", t.consumeNext());
+    }
+
+    @Test
+    public void shouldTokenizeLangStyleTokensCorrectly() {
+        MyTokenizer t = new MyTokenizer("a \"label with lang\"@en and more");
+        assertEquals("a", t.consumeNext());
+        assertEquals("\"label with lang\"", t.consumeNext());
+        assertEquals("@en", t.consumeNext());
+        assertEquals("and", t.consumeNext());
+        assertEquals("more", t.consumeNext());
+    }
+
+    @Test
+    public void shouldTokenizeDatatypeStyleTokensCorrectly() {
+        MyTokenizer t = new MyTokenizer("a \"label with dt\"^^anyURI and more");
+        assertEquals("a", t.consumeNext());
+        assertEquals("\"label with dt\"", t.consumeNext());
+        assertEquals("^^anyURI", t.consumeNext());
+        assertEquals("and", t.consumeNext());
+        assertEquals("more", t.consumeNext());
+    }
 }

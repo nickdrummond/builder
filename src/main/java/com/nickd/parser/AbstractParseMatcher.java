@@ -25,6 +25,10 @@ public abstract class AbstractParseMatcher {
         throw new RuntimeException("Not a data property matcher");
     }
 
+    public OWLAnnotationProperty getAnnotationProperty() {
+        throw new RuntimeException("Not an annotation property matcher");
+    }
+
     public OWLLiteral getLiteral() {
         throw new RuntimeException("Not a literal matcher");
     }

@@ -19,6 +19,7 @@ Purely an experiment in navigating/building ontologies in a command line interfa
 
 ## TODO
 
+* Complete parser for all axiom types
 * Axiom show - order referenced entities in MOS order (if possible)
 
 ## Bugs
@@ -52,6 +53,8 @@ runs again which causes problems:
 
 ### New from suggestion
 Should just be able to select the number without the extras - each suggestion should be a **set of axioms**
+
+suggestions.owl?
 
     >> wiki Ferrix	suggest
     https://starwars.fandom.com/wiki/Ferrix

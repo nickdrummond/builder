@@ -8,6 +8,8 @@ public interface OWLObjectProvider {
 
     OWLDataPropertyExpression dataProp(String key);
 
+    OWLAnnotationProperty annotProp(String key);
+
     OWLIndividual ind(String key);
 
     OWLClassExpression cls(String key);

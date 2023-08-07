@@ -53,7 +53,7 @@ public class BuilderController {
         commands.put("ont", new OntologiesCommand(helper));
         commands.put("ind", new IndividualsCommand(helper));
         commands.put("new", new NewInstanceCommand(helper, defaultSearchLabel));
-        commands.put("add", new AddAxiomCommand(helper));
+        commands.put("add", new AddAxiomCommand(helper, defaultSearchLabel));
         commands.put("show", new ShowCommand(helper));
         commands.put("<", new BackContextCommand(helper));
         commands.put("<<", new RootContextCommand());
@@ -176,11 +176,15 @@ public class BuilderController {
     }
 
     private String buildPrompt(Context currentContext) {
+        if (currentContext.isRoot()) {
+            return Constants.PROMPT;
+        }
+
         int depth = currentContext.stack().size();
         List<String> stackRen = currentContext
                 .stack(Constants.PROMPT_DEPTH).stream()
-                .map(c -> MyStringUtils.truncate(c.toString(helper), Constants.MAX_BEFORE_TRUNCATE, Constants.TRUNCATE_LENGTH))
-                .collect(Collectors.toList());
+                .map(c -> (c == currentContext) ? c.toString(helper) : MyStringUtils.truncate(c.toString(helper), Constants.MAX_BEFORE_TRUNCATE, Constants.TRUNCATE_LENGTH))
+                .toList();
         String breadcrumb = StringUtils.join(stackRen, Constants.BREADCRUMB) + Constants.PROMPT;
         if (stackRen.size() < depth) {
             breadcrumb = (depth-Constants.PROMPT_DEPTH) + "…" + Constants.BREADCRUMB + breadcrumb;
