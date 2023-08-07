@@ -7,9 +7,14 @@ import org.semanticweb.owlapi.model.OWLNamedIndividual;
 
 import java.util.Collections;
 
-public class IndividualMatcher extends AbstractParseMatcher {
+public class IndividualMatcher extends AbstractParseMatcher<OWLNamedIndividual> {
 
     private OWLNamedIndividual ind;
+
+    @Override
+    public OWLNamedIndividual get() {
+        return ind;
+    }
 
     @Override
     public OWLNamedIndividual getIndividual() {

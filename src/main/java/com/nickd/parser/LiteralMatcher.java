@@ -10,10 +10,15 @@ import uk.ac.manchester.cs.owl.owlapi.OWLLiteralImpl;
 
 import java.util.Collections;
 
-public class LiteralMatcher extends AbstractParseMatcher {
+public class LiteralMatcher extends AbstractParseMatcher<OWLLiteral> {
 
     public static final String DT_MARKER = "^^";
     private OWLLiteral lit;
+
+    @Override
+    public OWLLiteral get() {
+        return lit;
+    }
 
     @Override
     public OWLLiteral getLiteral() {

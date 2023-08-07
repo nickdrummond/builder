@@ -38,7 +38,7 @@ public class ParseTreeTest {
                 .expectIndividual("a")
                 .expectObjectProperty("p")
                 .expectIndividual("b")
-                .create(e -> df.getOWLObjectPropertyAssertionAxiom(e.objProp("p"), e.ind("a"), e.ind("b")));
+                .create(e -> df.getOWLObjectPropertyAssertionAxiom(e.objPropExpr("p"), e.ind("a"), e.ind("b")));
 
         assertEquals(expected, builder.getAxiom());
     }
@@ -62,7 +62,7 @@ public class ParseTreeTest {
                         ParseTree.branch() // expected path
                                 .expectObjectProperty("p")
                                 .expectIndividual("b")
-                                .create(e -> df.getOWLObjectPropertyAssertionAxiom(e.objProp("p"), e.ind("a"), e.ind("b")))
+                                .create(e -> df.getOWLObjectPropertyAssertionAxiom(e.objPropExpr("p"), e.ind("a"), e.ind("b")))
                 );
 
         assertEquals(expected, builder.getAxiom());
@@ -82,11 +82,11 @@ public class ParseTreeTest {
                         ParseTree.branch() // Property Characteristics
                                 .expectEither(
                                         ParseTree.branch().expectKeyword(FUNCTIONAL).expectEither(
-                                                ParseTree.branch().expectObjectProperty("p").create(e -> df.getOWLFunctionalObjectPropertyAxiom(e.objProp("p"))),
-                                                ParseTree.branch().expectDataProperty("p").create(e -> df.getOWLFunctionalDataPropertyAxiom(e.dataProp("p")))
+                                                ParseTree.branch().expectObjectProperty("p").create(e -> df.getOWLFunctionalObjectPropertyAxiom(e.objPropExpr("p"))),
+                                                ParseTree.branch().expectDataProperty("p").create(e -> df.getOWLFunctionalDataPropertyAxiom(e.dataPropExpr("p")))
                                         ),
                                         ParseTree.branch().expectKeyword(TRANSITIVE)
-                                                .expectObjectProperty("p").create(e -> df.getOWLTransitiveObjectPropertyAxiom(e.objProp("p")))
+                                                .expectObjectProperty("p").create(e -> df.getOWLTransitiveObjectPropertyAxiom(e.objPropExpr("p")))
                                 ),
                         ParseTree.branch() // Individual axioms
                                 .expectIndividual("a")
@@ -98,7 +98,7 @@ public class ParseTreeTest {
                                         ParseTree.branch() // expected path
                                                 .expectObjectProperty("p")
                                                 .expectIndividual("b")
-                                                .create(e -> df.getOWLObjectPropertyAssertionAxiom(e.objProp("p"), e.ind("a"), e.ind("b")))
+                                                .create(e -> df.getOWLObjectPropertyAssertionAxiom(e.objPropExpr("p"), e.ind("a"), e.ind("b")))
                                 )
                 );
         assertEquals(expected, builder.getAxiom());

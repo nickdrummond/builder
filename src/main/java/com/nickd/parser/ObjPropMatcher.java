@@ -7,8 +7,13 @@ import org.semanticweb.owlapi.model.OWLObjectProperty;
 
 import java.util.Collections;
 
-public class ObjPropMatcher extends AbstractParseMatcher {
+public class ObjPropMatcher extends AbstractParseMatcher<OWLObjectProperty> {
     private OWLObjectProperty prop;
+
+    @Override
+    public OWLObjectProperty get() {
+        return prop;
+    }
 
     @Override
     public OWLObjectProperty getObjectProperty() {

@@ -7,8 +7,13 @@ import org.semanticweb.owlapi.model.OWLDataFactory;
 
 import java.util.Collections;
 
-public class ClassMatcher extends AbstractParseMatcher {
+public class ClassMatcher extends AbstractParseMatcher<OWLClass> {
     private OWLClass cls;
+
+    @Override
+    public OWLClass get() {
+        return cls;
+    }
 
     @Override
     public OWLClass getOWLClass() {

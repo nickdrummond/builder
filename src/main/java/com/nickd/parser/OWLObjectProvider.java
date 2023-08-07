@@ -2,19 +2,29 @@ package com.nickd.parser;
 
 import org.semanticweb.owlapi.model.*;
 
+import java.util.List;
+
 public interface OWLObjectProvider {
 
-    OWLObjectPropertyExpression objProp(String key);
+    OWLObjectPropertyExpression objPropExpr(String key);
 
-    OWLDataPropertyExpression dataProp(String key);
+    OWLObjectProperty objProp(String key);
+
+    OWLDataPropertyExpression dataPropExpr(String key);
+
+    OWLDataProperty dataProp(String key);
 
     OWLAnnotationProperty annotProp(String key);
 
-    OWLIndividual ind(String key);
+    OWLNamedIndividual ind(String key);
 
-    OWLClassExpression cls(String key);
+    OWLClass cls(String key);
 
     OWLLiteral lit(String key);
 
     OWLClassExpression clsExpr(String key);
+
+    OWLDatatype datatype(String key);
+
+//    List<T> getList(String key);
 }

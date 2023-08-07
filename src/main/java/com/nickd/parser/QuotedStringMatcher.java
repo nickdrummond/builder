@@ -7,9 +7,14 @@ import org.semanticweb.owlapi.model.OWLDataFactory;
 
 import java.util.Collections;
 
-public class QuotedStringMatcher extends AbstractParseMatcher {
+public class QuotedStringMatcher extends AbstractParseMatcher<String> {
 
     private String value;
+
+    @Override
+    public String get() {
+        return value;
+    }
 
     public String getValue() {
         return value;

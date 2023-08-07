@@ -65,8 +65,16 @@ public class ParseTree implements OWLObjectProvider {
         return expect(p, new ObjPropMatcher());
     }
 
+    public ParseTree expectObjectPropertyExpression(String p) {
+        return expect(p, new ObjPropExpressionMatcher());
+    }
+
     public ParseTree expectDataProperty(String p) {
         return expect(p, new DataPropMatcher());
+    }
+
+    public ParseTree expectDataPropertyExpression(String p) {
+        return expect(p, new DataPropExpressionMatcher());
     }
 
     public ParseTree expectAnnotationProperty(String p) {
@@ -85,43 +93,72 @@ public class ParseTree implements OWLObjectProvider {
         return expect(key, new LiteralMatcher());
     }
 
+
+    public ParseTree expectDatatype(String key) {
+        return expect(key, new DatatypeMatcher());
+    }
+
     public ParseTree expectSugar(String s) {
         return expect(s, new SugarMatcher(s));
     }
 
     @Override
-    public OWLObjectPropertyExpression objProp(String key) {
-        return matchers.get(key).getObjectProperty();
+    public OWLObjectPropertyExpression objPropExpr(String key) {
+        return getMatcherForKey(key).getObjectPropertyExpression();
     }
 
     @Override
-    public OWLDataPropertyExpression dataProp(String key) {
-        return matchers.get(key).getDataProperty();
+    public OWLObjectProperty objProp(String key) {
+        return getMatcherForKey(key).getObjectProperty();
+    }
+
+    @Override
+    public OWLDataPropertyExpression dataPropExpr(String key) {
+        return getMatcherForKey(key).getDataPropertyExpression();
+    }
+
+    @Override
+    public OWLDataProperty dataProp(String key) {
+        return getMatcherForKey(key).getDataProperty();
     }
 
     @Override
     public OWLAnnotationProperty annotProp(String key) {
-        return matchers.get(key).getAnnotationProperty();
+        return getMatcherForKey(key).getAnnotationProperty();
     }
 
     @Override
-    public OWLIndividual ind(String key) {
-        return matchers.get(key).getIndividual();
+    public OWLNamedIndividual ind(String key) {
+        return getMatcherForKey(key).getIndividual();
     }
 
     @Override
-    public OWLClassExpression cls(String key) {
-        return matchers.get(key).getOWLClass();
+    public OWLClass cls(String key) {
+        return getMatcherForKey(key).getOWLClass();
+    }
+
+    private <T> AbstractParseMatcher<T> getMatcherForKey(String key) {
+        try {
+            return (AbstractParseMatcher<T>)matchers.get(key);
+        }
+        catch (NullPointerException e) {
+            throw new RuntimeException("Cannot find binding for " + key, e);
+        }
     }
 
     @Override
     public OWLClassExpression clsExpr(String key) {
-        return matchers.get(key).getOWLClassExpression();
+        return getMatcherForKey(key).getOWLClassExpression();
+    }
+
+    @Override
+    public OWLDatatype datatype(String key) {
+        return getMatcherForKey(key).getDatatype();
     }
 
     @Override
     public OWLLiteral lit(String key) {
-        return matchers.get(key).getLiteral();
+        return getMatcherForKey(key).getLiteral();
     }
 
     public OWLAxiom getAxiom() {
@@ -133,7 +170,41 @@ public class ParseTree implements OWLObjectProvider {
         return axiom;
     }
 
-    private class BranchingMatcher extends AbstractParseMatcher {
+    public <T> ParseTree expectList(String key, ManchesterOWLSyntax separator, AbstractParseMatcher<T> elementMatcher) {
+        return expectList(key, separator.keyword(), elementMatcher);
+    }
+
+    public <T> ParseTree expectList(String key, String separator, AbstractParseMatcher<T> elementMatcher) {
+        return expect(key, new ListMatcher<T>(separator, elementMatcher));
+    }
+
+    private class ListMatcher<T> extends AbstractParseMatcher<T> {
+
+        private final String separator;
+        private final AbstractParseMatcher<T> elementMatcher;
+
+        private final List<T> results = new ArrayList<>();
+
+        public ListMatcher(String separator, AbstractParseMatcher<T> elementMatcher) {
+            this.separator = separator;
+            this.elementMatcher = elementMatcher;
+        }
+
+        public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+            try {
+                elementMatcher.check(tokenizer, checker, df);
+                results.add(elementMatcher.get());
+                new SugarMatcher(separator).check(tokenizer, checker, df);
+            }
+            catch(ParserException e) {
+                if (results.isEmpty()) { // if we haven't found at least one element then rethrow
+                    throw e;
+                }
+            }
+        }
+    }
+
+    private class BranchingMatcher<T> extends AbstractParseMatcher<T> {
         private final List<ParseTree> branches;
 
         public BranchingMatcher(ParseTree... branches) {

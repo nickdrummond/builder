@@ -4,7 +4,12 @@ import org.semanticweb.owlapi.expression.OWLEntityChecker;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 
-public abstract class AbstractParseMatcher {
+public abstract class AbstractParseMatcher<T> {
+
+    public T get() {
+        throw new RuntimeException("Getter not implemented");
+    }
+
     public OWLNamedIndividual getIndividual() {
         throw new RuntimeException("Not an individual matcher");
     }
@@ -34,5 +39,17 @@ public abstract class AbstractParseMatcher {
     }
 
     public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+    }
+
+    public OWLObjectPropertyExpression getObjectPropertyExpression() {
+        throw new RuntimeException("Not an object property expression matcher");
+    }
+
+    public OWLDataPropertyExpression getDataPropertyExpression() {
+        throw new RuntimeException("Not a data property expression matcher");
+    }
+
+    public OWLDatatype getDatatype() {
+        throw new RuntimeException("Not a datatype matcher");
     }
 }

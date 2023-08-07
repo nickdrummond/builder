@@ -4,13 +4,17 @@ import org.semanticweb.owlapi.expression.OWLEntityChecker;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLDataFactory;
-import org.semanticweb.owlapi.model.OWLDataProperty;
 
 import java.util.Collections;
 
-public class AnnotationPropMatcher extends AbstractParseMatcher {
+public class AnnotationPropMatcher extends AbstractParseMatcher<OWLAnnotationProperty> {
 
     private OWLAnnotationProperty prop;
+
+    @Override
+    public OWLAnnotationProperty get() {
+        return prop;
+    }
 
     @Override
     public OWLAnnotationProperty getAnnotationProperty() {

@@ -43,7 +43,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        com.nickd.builder.RunBuilder
+                                        com.nickd.RunBuilder
                                     </mainClass>
                                 </manifest>
                             </archive>

@@ -6,8 +6,13 @@ import org.semanticweb.owlapi.model.OWLDataFactory;
 
 import java.util.Set;
 
-public class SugarMatcher extends AbstractParseMatcher {
+public class SugarMatcher extends AbstractParseMatcher<String> {
     private final String syntax;
+
+    @Override
+    public String get() {
+        return syntax;
+    }
 
     public SugarMatcher(String syntax) {
         this.syntax = syntax;

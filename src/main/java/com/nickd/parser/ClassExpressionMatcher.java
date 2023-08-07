@@ -6,8 +6,13 @@ import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 
-public class ClassExpressionMatcher extends AbstractParseMatcher {
+public class ClassExpressionMatcher extends AbstractParseMatcher<OWLClassExpression> {
     private OWLClassExpression expr;
+
+    @Override
+    public OWLClassExpression get() {
+        return expr;
+    }
 
     @Override
     public OWLClassExpression getOWLClassExpression() {

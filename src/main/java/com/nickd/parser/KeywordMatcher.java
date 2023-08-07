@@ -7,8 +7,13 @@ import org.semanticweb.owlapi.model.OWLDataFactory;
 
 import java.util.Set;
 
-public class KeywordMatcher extends AbstractParseMatcher {
+public class KeywordMatcher extends AbstractParseMatcher<String> {
     private final String syntax;
+
+    @Override
+    public String get() {
+        return syntax;
+    }
 
     public KeywordMatcher(ManchesterOWLSyntax syntax) {
         this.syntax = syntax.toString();

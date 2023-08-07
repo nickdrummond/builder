@@ -1,5 +1,6 @@
-package com.nickd.builder;
+package com.nickd;
 
+import com.nickd.builder.BuilderController;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import java.io.File;
