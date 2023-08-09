@@ -24,7 +24,7 @@ public class OntologyRootContext extends OWLObjectListContext {
     }
 
     @Override
-    public void describe(PrintStream out, Helper helper) {
+    public void renderSelection(PrintStream out, Helper helper) {
         // do nothing
     }
 

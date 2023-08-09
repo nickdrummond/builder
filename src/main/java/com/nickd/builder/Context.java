@@ -20,13 +20,9 @@ public interface Context {
     @Nonnull
     String getName();
 
-    String toString(Helper helper);
-
-    String renderFirst(Helper helper);
-
     OWLObject getSelected();
 
-    void describe(PrintStream out, Helper helper);
+    void renderSelection(PrintStream out, Helper helper);
 
     boolean isSingleSelection();
 

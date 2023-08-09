@@ -26,7 +26,7 @@ public class OntologiesCommand implements Command {
         if (params.size() == 1) {
             OWLOntology ont = helper.ont(params.get(0));
             if (ont != null) {
-                return new OWLObjectListContext("", parentContext, ont);
+                return new OWLObjectListContext(helper.render(ont), parentContext, ont);
             }
         }
         return new OWLObjectListContext("ontologies", parentContext, List.copyOf(helper.mngr.getOntologies()));

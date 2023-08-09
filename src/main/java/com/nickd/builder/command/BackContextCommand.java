@@ -24,13 +24,13 @@ public class BackContextCommand implements Command {
         else {
             String searchFor = input.paramsAsString();
             return context.stack().stream()
-                    .filter(c -> c.toString(helper).equals(searchFor))
+                    .filter(c -> c.getName().equals(searchFor))
                     .findFirst().orElse(context);
         }
     }
 
     @Override
     public List<String> autocomplete(UserInput input, Context context) {
-        return context.stack().stream().map(c->c.toString(helper)).collect(Collectors.toList());
+        return context.stack().stream().map(Context::getName).collect(Collectors.toList());
     }
 }

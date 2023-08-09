@@ -32,35 +32,16 @@ public class OWLObjectListContext extends ContextBase {
     }
 
     @Override
-    public String toString(Helper helper) {
-        int size = selectedObjects.size();
-        return (size == 1) ? renderFirst(helper) : getName() + " (" + size + ")";
-    }
-
-    @Override
-    public String renderFirst(Helper helper) {
-        OWLObject o = getSelected();
-        if (o instanceof OWLOntology) {
-            return helper.renderOntology((OWLOntology) o);
-        }
-        else {
-            return helper.render(o);
-        }
-    }
-
-    @Override
     public OWLObject getSelected() {
         return selectedObjects.get(0);
     }
 
     @Override
-    public void describe(PrintStream out, Helper helper) {
+    public void renderSelection(PrintStream out, Helper helper) {
         if (!isSingleSelection()) {
             for (int i = 0; i < selectedObjects.size(); i++) {
                 OWLObject o = selectedObjects.get(i);
-                out.println("\t" + i + ") " + ((o instanceof OWLOntology)
-                        ? helper.renderOntology((OWLOntology) o)
-                        : helper.render(o)));
+                out.println("\t" + i + ") " + helper.render(o));
             }
         }
     }

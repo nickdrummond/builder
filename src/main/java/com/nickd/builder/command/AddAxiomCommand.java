@@ -1,6 +1,7 @@
 package com.nickd.builder.command;
 
 import com.nickd.builder.Context;
+import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
 import com.nickd.util.Helper;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
@@ -39,14 +40,21 @@ public class AddAxiomCommand implements Command {
 
             List<OWLOntologyChange> changes = new ArrayList<>();
             changes.add(new AddAxiom(targetOntology, ax));
-            logger.debug("Added " + helper.render(ax) + " to " + helper.renderOntology(targetOntology));
+            logger.debug("Added " + helper.render(ax) + " to " + helper.render(targetOntology));
 
             helper.mngr.applyChanges(changes);
+            return new OWLObjectListContext(helper.render(ax), context, ax);
+
         }
         catch (ParserException e) {
             logger.debug(e.getMessage());
-            return common.createPlaceholderContext(input.fullText(), e, context);
+            Context placeHolder = common.createPlaceholderContext(input.fullText(), e, context);
+            if (placeHolder.isSingleSelection()) { //exact match
+                return handle(new UserInput(placeHolder.getName()), context); // try to parse again
+            }
+            else {
+                return placeHolder;
+            }
         }
-        return context;
     }
 }

@@ -138,18 +138,19 @@ public class Helper {
         return mosAxiom.parse(s);
     }
 
-    public String renderOntology(OWLOntology ont) {
-        return ont.getOntologyID().getDefaultDocumentIRI().map(IRI::getShortForm).orElse("anon");
-    }
-
     public String render(OWLObject o) {
         return render(o, true);
     }
 
     public String render(OWLObject o, boolean singleLine) {
-        StringWriter w = new StringWriter();
-        o.accept(new MyMOSObjectRenderer(w, sfp));
-        return singleLine ? MyStringUtils.singleLine(w.toString()) : w.toString();
+        if (o instanceof OWLOntology ontology) {
+            return ontology.getOntologyID().getDefaultDocumentIRI().map(IRI::getShortForm).orElse("anon");
+        }
+        else {
+            StringWriter w = new StringWriter();
+            o.accept(new MyMOSObjectRenderer(w, sfp));
+            return singleLine ? MyStringUtils.singleLine(w.toString()) : w.toString();
+        }
     }
 
     public void clearReasoner() {

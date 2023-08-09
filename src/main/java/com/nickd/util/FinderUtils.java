@@ -1,12 +1,15 @@
 package com.nickd.util;
 
+import openllet.owlapi.OWLHelper;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.parameters.Imports;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FinderUtils {
 
@@ -57,4 +60,7 @@ public class FinderUtils {
         return (v.isLiteral() && v.asLiteral().isPresent() && v.asLiteral().get().getLiteral().equals(value));
     }
 
+    public static Stream<OWLOntology> getOntologiesContaining(OWLAxiom ax, OWLOntology root) {
+        return root.importsClosure().filter(o -> o.containsAxiom(ax, false));
+    }
 }

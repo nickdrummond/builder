@@ -32,7 +32,16 @@ public class ParserCommon {
     Context createPlaceholderContext(String commandStr, ParserException e, Context context) {
         String token = e.getCurrentToken();
         List<OWLEntity> entities = getExpectedType(e);
-        String s = commandStr.replace(token, "?" + token + "?");
+        String s;
+        if (entities.size() > 1) {
+            s = commandStr.replace(token, "?" + token + "?");
+        }
+        else if (entities.size() == 1) {
+            s = commandStr.replace(token, helper.render(entities.get(0)));
+        }
+        else {
+            s = commandStr.replace(token, "??");
+        }
         return new OWLObjectListContext(s, context, entities);
     }
 

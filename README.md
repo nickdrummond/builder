@@ -35,6 +35,35 @@ Purely an experiment in navigating/building ontologies in a command line interfa
 ## Thoughts
 
 ### Autocompletion
+       >> add Han_S lov Leia
+       0) Birth_of_Han_Solo
+       1) Han_Solo
+       2) Rescue_of_Han_Solo
+       add ?Han_S? lov Leia >> 1
+       0) Leia_Organa
+       1) Leia_vs_Jabba
+       2) Rescue_of_Leia
+       3) Kidnapping_of_Leia
+       ...
+       11) Bail_asks_for_help_finding_Leia
+       add Han_Solo loved ?Leia? >> 0
+       Han_Solo loved Leia_Organa >> show
+       0) loved
+       1) Han_Solo
+       2) Leia_Organa
+       Han_Solo loved Leia_Organa > entities >>
+
+
+
+         >> add Han_Solo loved bleagh
+        add Han_Solo loved ?? >> find Chewb
+        0) Chewbacca
+       1) Birth_of_Chewbacca
+       2) Boushh_trades_Chewbacca
+       3) Rescue_of_Chewbacca
+       add Han_Solo loved ?? > find Chewb >> 0
+       Han_Solo loved Chewbacca >>
+
 Can't use autocomplete unless its for final symbol as it either needs to be c+p to edit or automatically
 runs again which causes problems:
 
@@ -57,6 +86,7 @@ runs again which causes problems:
 
 ### New from suggestion
 Should just be able to select the number without the extras - each suggestion should be a **set of axioms**
+Its also wrong as the label should be without _underscores
 
 suggestions.owl?
 

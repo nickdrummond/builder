@@ -1,10 +1,8 @@
 package com.nickd.builder.command;
 
-import com.nickd.builder.Context;
-import com.nickd.builder.OWLObjectListContext;
-import com.nickd.builder.UserInput;
-import com.nickd.builder.Constants;
+import com.nickd.builder.*;
 import com.nickd.util.Helper;
+import com.nickd.util.MyStringUtils;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
@@ -13,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class NewInstanceCommand implements Command {
 
@@ -43,6 +42,14 @@ public class NewInstanceCommand implements Command {
 
     @Override
     public Context handle(UserInput input, Context context) {
+
+        // TODO this is going to have to go :(
+        // As much as this is nice and "cheap" for helping out, all we're doing is creating strings which have to be
+        // pulled apart again by each command - when they could just get the object from parent context!!
+        // Good for entities, not so good for axioms etc
+        if (input.fullText().contains("&")) {
+            input = replaceVars(input, context);
+        }
 
         List<String> params = input.params();
 
@@ -80,9 +87,14 @@ public class NewInstanceCommand implements Command {
 
             helper.mngr.applyChanges(changes);
 
-            return new OWLObjectListContext("", context, ind);
+            return new OWLObjectListContext(helper.render(ind), context, ind);
         }
         return context;
+    }
+
+    private UserInput replaceVars(UserInput input, Context currentContext) {
+        List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());
+        return new UserInput(MyStringUtils.replaceVars(input.fullText(), names));
     }
 
     private OWLOntologyChange addType(OWLNamedIndividual ind, OWLClass cls, OWLOntology targetOntology) {

@@ -31,6 +31,7 @@ public class Wookieepedia {
     private LinkedHashMap<OWLEntity, String> suggestions;
     private URI uri;
 
+//TODO fill a suggestions.owl
 
     public static Wookieepedia forURI(Helper helper, URI uri) throws IOException {
         return new Wookieepedia(helper, uri);

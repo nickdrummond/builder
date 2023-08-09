@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -38,6 +37,7 @@ public class BuilderController {
     private List<String> autocomplete = new ArrayList<>();
 
     private final Stack<UserInput> history = new Stack<>();
+    private InputStream inputStream;
 
     public BuilderController(File file, PrintStream outputStream) throws OWLOntologyCreationException {
         helper = new Helper(file);
@@ -67,6 +67,8 @@ public class BuilderController {
 
     public void run(InputStream inputStream) {
 
+        this.inputStream = inputStream;
+
         Scanner in = new Scanner(inputStream);
 
         Context currentContext = new OntologyRootContext(helper.ont);
@@ -77,14 +79,6 @@ public class BuilderController {
             outputStream.print(buildPrompt(currentContext));
 
             UserInput input = new UserInput(in.nextLine());
-
-            // TODO this is going to have to go :(
-            // As much as this is nice and "cheap" for helping out, all we're doing is creating strings which have to be
-            // pulled apart again by each command - when they could just get the object from parent context!!
-            // Good for entities, not so good for axioms etc
-//            if (input.fullText().contains("&")) {
-//                input = replaceVars(input, currentContext);
-//            }
 
 //            logger.debug(input.toString());
 
@@ -101,11 +95,6 @@ public class BuilderController {
         in.close();
     }
 
-//    private UserInput replaceVars(UserInput input, Context currentContext) {
-//        List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());
-//        return new UserInput(MyStringUtils.replaceVars(input.fullText(), names));
-//    }
-
     private void outputOptions(List<String> results) {
         for (int i = 0; i < results.size(); i++) {
             outputStream.println(i + ") " + results.get(i));
@@ -121,14 +110,15 @@ public class BuilderController {
                     input = history.pop().autocomplete(autocomplete.get(input.index())); // rewrite history
                     autocomplete.clear();
                     // Should somehow write into the input stream
-                    outputStream.print(buildPrompt(currentContext) + input.fullText());
+//                    outputStream.print(input.fullText());
+//                    return currentContext;
                     // and should now allow other commands
                 } else if (input.index() < currentContext.getSelectedObjects().size()) { // selecting an object
                     // this whole idea needs review
                     List<? extends OWLObject> selectedObjects = currentContext.getSelectedObjects();
                     OWLObject owlObject = selectedObjects.get(input.index());
                     Context c = replacePlaceholderInAncestorContext(owlObject, currentContext);
-                    return (c != null) ? c : new OWLObjectListContext("", currentContext, owlObject);
+                    return (c != null) ? c : new OWLObjectListContext(helper.render(owlObject), currentContext, owlObject);
                 }
             }
 
@@ -154,7 +144,7 @@ public class BuilderController {
         Command command = getCommand(input);
         Context c = command.handle(input, currentContext);
         if (c != currentContext) {
-            c.describe(outputStream, helper);
+            c.renderSelection(outputStream, helper);
         }
         return c;
     }
@@ -185,7 +175,7 @@ public class BuilderController {
         int depth = currentContext.stack().size();
         List<String> stackRen = currentContext
                 .stack(Constants.PROMPT_DEPTH).stream()
-                .map(c -> (c == currentContext) ? c.toString(helper) : MyStringUtils.truncate(c.toString(helper), Constants.MAX_BEFORE_TRUNCATE, Constants.TRUNCATE_LENGTH))
+                .map(c -> (c == currentContext) ? c.getName() : MyStringUtils.truncate(c.getName(), Constants.MAX_BEFORE_TRUNCATE, Constants.TRUNCATE_LENGTH))
                 .toList();
         String breadcrumb = StringUtils.join(stackRen, Constants.BREADCRUMB) + Constants.PROMPT;
         if (stackRen.size() < depth) {

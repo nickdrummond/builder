@@ -2,17 +2,17 @@ package com.nickd.builder.command;
 
 import com.nickd.builder.Context;
 import com.nickd.builder.UserInput;
+import com.nickd.util.FinderUtils;
 import com.nickd.util.Helper;
+import com.nickd.util.MyStringUtils;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.RemoveAxiom;
+import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RemoveAxiomCommand implements Command {
 
@@ -34,27 +34,39 @@ public class RemoveAxiomCommand implements Command {
     @Override
     public Context handle(UserInput input, Context context) {
 
-        OWLOntology targetOntology = context.getOntology(helper);
+        if (input.fullText().contains("&")) {
+            input = replaceVars(input, context);
+        }
 
-        Optional<OWLAxiom> ax = context.getOWLAxiom();
+        Optional<OWLAxiom> ax = Optional.empty();
 
-        if (ax.isEmpty()) {
+        if (!input.isEmpty()) {
             try {
                 String param = input.paramsAsString();
                 ax = Optional.of(helper.mosAxiom(param));
             } catch (ParserException e) {
-                logger.debug(e.getMessage());
+                logger.error("Cannot find axiom", e);
                 return common.createPlaceholderContext(input.fullText(), e, context);
             }
         }
+        if (ax.isEmpty()) {
+            ax = context.getOWLAxiom();
+        }
 
-        ax.ifPresent( a -> remove(targetOntology, a));
+        ax.ifPresent(a -> remove(a));
 
         return context;
     }
 
-    private void remove(OWLOntology targetOntology, OWLAxiom a) {
-        System.out.println("Removing " + helper.render(a));
-        helper.mngr.applyChanges(new RemoveAxiom(targetOntology, a));
+    private void remove(OWLAxiom a) {
+        List<? extends OWLOntologyChange> changes = FinderUtils.getOntologiesContaining(a, helper.ont)
+                .peek(o -> System.out.println("Removing " + helper.render(a) + " from " + helper.render(o)))
+                .map(o -> new RemoveAxiom(o, a)).collect(Collectors.toList());
+        helper.mngr.applyChanges(changes);
+}
+
+    private UserInput replaceVars(UserInput input, Context currentContext) {
+        List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());
+        return new UserInput(MyStringUtils.replaceVars(input.fullText(), names));
     }
 }
