@@ -36,7 +36,7 @@ public class WikiCommand implements Command {
 
 
     @Override
-    public List<String> autocomplete(UserInput commandStr, Context context) {
+    public List<String> autocomplete(UserInput input, Context context) {
         return List.of("Do some voodoo with the given wookieepedia entry");
     }
 

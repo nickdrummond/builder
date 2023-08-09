@@ -21,12 +21,16 @@ Purely an experiment in navigating/building ontologies in a command line interfa
 
 * Complete parser for all axiom types
 * Axiom show - order referenced entities in MOS order (if possible)
+* ont (searchterm)
+* 
 
 ## Bugs
 ### Accidentally give the wrong placeholder:
     2… > Ferrix > Ferrix (112) > Free_Trade_sector >> new Sector &1 https://starwars.fandom.com/wiki/Free_Trade_sector
     3… > Ferrix (112) > Free_Trade_sector > ontologies#&1 >> show
     0) ontologies#&1 Type Sector...
+### Cannot parse Subclass Axiom
+    add Verlo_Skiff ?SubClassOf? hadRole some (Police and inOrganisation value Pre-Mor_Security_Inspection_team)
 
 ## Thoughts
 

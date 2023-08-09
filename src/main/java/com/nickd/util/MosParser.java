@@ -8,6 +8,7 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.util.BidirectionalShortFormProviderAdapter;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 
+@Deprecated
 public class MosParser {
 
     private final ManchesterOWLSyntaxClassExpressionParser mos;

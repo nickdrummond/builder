@@ -21,12 +21,12 @@ public class UndoCommand implements Command {
     }
 
     @Override
-    public List<String> autocomplete(UserInput commandStr, Context context) {
+    public List<String> autocomplete(UserInput input, Context context) {
         return List.of("Undo the last changes applied to the ontology");
     }
 
     @Override
-    public Context handle(UserInput commandStr, Context context) {
+    public Context handle(UserInput input, Context context) {
         List<? extends OWLOntologyChange> lastChanges = history.pop();
         helper.mngr.applyChanges(reverseChanges(lastChanges));
         return context;

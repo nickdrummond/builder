@@ -30,7 +30,7 @@ public class BackContextCommand implements Command {
     }
 
     @Override
-    public List<String> autocomplete(UserInput commandStr, Context context) {
+    public List<String> autocomplete(UserInput input, Context context) {
         return context.stack().stream().map(c->c.toString(helper)).collect(Collectors.toList());
     }
 }

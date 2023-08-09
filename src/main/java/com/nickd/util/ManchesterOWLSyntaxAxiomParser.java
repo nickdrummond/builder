@@ -27,6 +27,7 @@ import static org.semanticweb.owlapi.manchestersyntax.parser.ManchesterOWLSyntax
  * TODO Make all ParserExceptions - correct indexing
  * TODO lookahead for hints of the type for Exceptions
  */
+@Deprecated
 public class ManchesterOWLSyntaxAxiomParser {
 
     private final OWLDataFactory df;

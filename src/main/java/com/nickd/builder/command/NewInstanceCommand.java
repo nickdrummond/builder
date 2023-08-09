@@ -37,7 +37,7 @@ public class NewInstanceCommand implements Command {
 
 
     @Override
-    public List<String> autocomplete(UserInput commandStr, Context context) {
+    public List<String> autocomplete(UserInput input, Context context) {
         return List.of("Create a new individual with some paramsAsString");
     }
 

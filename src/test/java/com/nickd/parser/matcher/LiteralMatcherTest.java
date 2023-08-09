@@ -1,5 +1,7 @@
-package com.nickd.parser;
+package com.nickd.parser.matcher;
 
+import com.nickd.parser.MyTokenizer;
+import com.nickd.parser.matcher.LiteralMatcher;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,13 +9,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.semanticweb.owlapi.expression.OWLEntityChecker;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
-import uk.ac.manchester.cs.owl.owlapi.OWLDatatypeImpl;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;

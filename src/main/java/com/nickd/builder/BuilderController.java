@@ -52,8 +52,10 @@ public class BuilderController {
         commands.put("wiki", new WikiCommand(helper, defaultSearchLabel));
         commands.put("ont", new OntologiesCommand(helper));
         commands.put("ind", new IndividualsCommand(helper));
+        commands.put("subs", new SubsCommand(helper));
         commands.put("new", new NewInstanceCommand(helper, defaultSearchLabel));
         commands.put("add", new AddAxiomCommand(helper, defaultSearchLabel));
+        commands.put("remove", new RemoveAxiomCommand(helper, defaultSearchLabel));
         commands.put("show", new ShowCommand(helper));
         commands.put("<", new BackContextCommand(helper));
         commands.put("<<", new RootContextCommand());
@@ -142,7 +144,7 @@ public class BuilderController {
 
         }
         catch(Exception e) { // don't drop out
-            logger.error(e.getMessage());
+            logger.error("error during command " + input, e);
         }
         return currentContext;
     }

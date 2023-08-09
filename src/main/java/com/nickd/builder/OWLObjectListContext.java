@@ -1,10 +1,7 @@
 package com.nickd.builder;
 
 import com.nickd.util.Helper;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLEntity;
-import org.semanticweb.owlapi.model.OWLObject;
-import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.*;
 
 import javax.annotation.Nonnull;
 import java.io.PrintStream;
@@ -103,17 +100,26 @@ public class OWLObjectListContext extends ContextBase {
 
     @Override
     public Optional<OWLClass> getOWLClass() {
-        if (isSingleSelection()) {
-            OWLObject o = getSelected();
-            if (o instanceof OWLClass) {
-                return Optional.of((OWLClass) o);
-            }
-        }
-        else if (isRoot()) {
-            return Optional.empty();
-        }
-
-        return parent.getOWLClass();
+        return get(OWLClass.class);
     }
 
+    @Override
+    public Optional<OWLAxiom> getOWLAxiom() {
+        return get(OWLAxiom.class);
+    }
+
+    @Override
+    public <T extends OWLObject> Optional<T> get(Class<T> cls) {
+        if (isRoot()) {
+            return Optional.empty();
+        }
+        else if (isSingleSelection()) {
+            OWLObject o = getSelected();
+            if (o != null && cls.isAssignableFrom(o.getClass())) {
+                return Optional.of((T)o);
+            }
+        }
+
+        return parent.get(cls);
+    }
 }

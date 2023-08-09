@@ -1,5 +1,7 @@
-package com.nickd.parser;
+package com.nickd.parser.matcher;
 
+import com.nickd.parser.MyTokenizer;
+import com.nickd.parser.matcher.AbstractParseMatcher;
 import com.nickd.util.MyStringUtils;
 import org.semanticweb.owlapi.expression.OWLEntityChecker;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;

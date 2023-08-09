@@ -21,12 +21,12 @@ public class SaveCommand implements Command {
 
 
     @Override
-    public List<String> autocomplete(UserInput commandStr, Context context) {
+    public List<String> autocomplete(UserInput input, Context context) {
         return List.of("Save all changed ontologies");
     }
 
     @Override
-    public Context handle(UserInput commandStr, Context context) {
+    public Context handle(UserInput input, Context context) {
         try {
             helper.saveChanged();
         } catch (OWLOntologyStorageException e) {

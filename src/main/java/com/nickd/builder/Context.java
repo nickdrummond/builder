@@ -1,10 +1,7 @@
 package com.nickd.builder;
 
 import com.nickd.util.Helper;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLEntity;
-import org.semanticweb.owlapi.model.OWLObject;
-import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.*;
 
 import javax.annotation.Nonnull;
 import java.io.PrintStream;
@@ -39,5 +36,9 @@ public interface Context {
 
     Optional<OWLClass> getOWLClass();
 
+    Optional<OWLAxiom> getOWLAxiom();
+
     boolean isRoot();
+
+    <T extends OWLObject> Optional<T> get(Class<T> c);
 }

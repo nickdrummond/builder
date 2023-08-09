@@ -1,5 +1,6 @@
 package com.nickd.parser;
 
+import com.nickd.parser.matcher.*;
 import org.semanticweb.owlapi.expression.OWLEntityChecker;
 import org.semanticweb.owlapi.manchestersyntax.parser.ManchesterOWLSyntax;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;

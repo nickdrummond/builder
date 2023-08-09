@@ -16,12 +16,12 @@ public class HistoryCommand implements Command {
     }
 
     @Override
-    public Context handle(UserInput commandStr, Context context) {
+    public Context handle(UserInput input, Context context) {
         return context;
     }
 
     @Override
-    public List<String> autocomplete(UserInput commandStr, Context context) {
+    public List<String> autocomplete(UserInput input, Context context) {
         return history.stream().map(UserInput::fullText).collect(Collectors.toList());
     }
 }

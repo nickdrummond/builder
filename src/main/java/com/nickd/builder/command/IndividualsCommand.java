@@ -18,7 +18,7 @@ public class IndividualsCommand implements Command {
     }
 
     @Override
-    public Context handle(UserInput commandStr, Context context) {
+    public Context handle(UserInput input, Context context) {
         OWLOntology ont = context.getOntology(helper);
         Optional<OWLClass> cls = context.getOWLClass();
         List<OWLNamedIndividual> results = cls.isPresent() ? getInstances(cls.get()) : getAllIndividualsInSig(ont);
@@ -34,7 +34,7 @@ public class IndividualsCommand implements Command {
     }
 
     @Override
-    public List<String> autocomplete(UserInput commandStr, Context context) {
+    public List<String> autocomplete(UserInput input, Context context) {
         return List.of("Get instances of a class in the context or all individuals");
     }
 }
