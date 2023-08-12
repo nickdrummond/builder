@@ -42,8 +42,8 @@ public class BuilderController {
     public BuilderController(File file, PrintStream outputStream) throws OWLOntologyCreationException {
         helper = new Helper(file);
         this.outputStream = outputStream;
+        OWLAnnotationProperty defaultSearchLabel = helper.getLabelAnnotationProp();
 
-        OWLAnnotationProperty defaultSearchLabel = helper.annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
 
         // STATE needed instead of context
         // valid commands will be dependent on the current state
@@ -56,6 +56,7 @@ public class BuilderController {
         commands.put("new", new NewInstanceCommand(helper, defaultSearchLabel));
         commands.put("add", new AddAxiomCommand(helper, defaultSearchLabel));
         commands.put("remove", new RemoveAxiomCommand(helper, defaultSearchLabel));
+        commands.put("move", new MoveAxiomCommand(helper, defaultSearchLabel));
         commands.put("show", new ShowCommand(helper));
         commands.put("<", new BackContextCommand(helper));
         commands.put("<<", new RootContextCommand());

@@ -10,7 +10,7 @@ Purely an experiment in navigating/building ontologies in a command line interfa
 * Search ability
 * New entity creation
 * Axiom creation
-* Referencing / wookieepedia
+* Referencing / wikiPage
 * Autocompletion ?
 * Undo
 * History / Context (scope)

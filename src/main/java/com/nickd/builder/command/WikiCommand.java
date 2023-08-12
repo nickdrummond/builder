@@ -3,17 +3,17 @@ package com.nickd.builder.command;
 import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
-import com.nickd.util.FinderUtils;
-import com.nickd.util.Helper;
-import com.nickd.util.Wookieepedia;
+import com.nickd.util.*;
 import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.nickd.util.Wiki.forString;
 
 /**
  * suggest https://starwars.fandom.com/wiki/Bix_Caleen
@@ -41,7 +41,11 @@ public class WikiCommand implements Command {
     }
 
     @Override
-    public Context handle(UserInput input, Context parentContext) {
+    public Context handle(UserInput input, Context context) {
+
+        if (input.fullText().contains("&")) {
+            input = replaceVars(input, context);
+        }
         // TODO validate(input);
         List<String> params = input.params();
 
@@ -49,38 +53,28 @@ public class WikiCommand implements Command {
             String refUrl = params.get(0);
 
             try {
-                Wookieepedia wookieepedia = getWookieepedia(refUrl);
+                WikiPage wikiPage = forString(refUrl, helper);
 
-                System.out.println(wookieepedia.getUri());
+                System.out.println(wikiPage.getIri());
 
-                //TODO unknown need to stay with their seeAlso for creation?
+                //TODO suggestions need to stay with their seeAlso for creation?
 
                 if (params.size() == 2) {
                     String query = params.get(1);
                     if (query.equals("suggest")) {
-                        return new OWLObjectListContext(refUrl, parentContext, wookieepedia.getUnknown());
+                        return new OWLObjectListContext(refUrl, context, wikiPage.getUnknown());
                     }
                 }
-                return new OWLObjectListContext(refUrl, parentContext, wookieepedia.getKnown());
+                return new OWLObjectListContext(refUrl, context, wikiPage.getKnown());
             } catch (IOException e) {
                 logger.warn("Cannot find Wookieepedia for ${}", refUrl);
             }
         }
-        return parentContext;
+        return context;
     }
 
-    private Wookieepedia getWookieepedia(@Nonnull String ref) throws IOException {
-            if (ref.startsWith("http")) {
-                return Wookieepedia.forURI(helper, URI.create(ref));
-            } else {
-                List<OWLEntity> entities = FinderUtils.annotationExact(ref, defaultSearchLabel, helper);
-                if (entities.isEmpty()) {
-                    return Wookieepedia.forName(helper, ref);
-                }
-                else {
-                    OWLEntity entity = entities.get(0);
-                    return Wookieepedia.forOWLEntity(helper, entity);
-                }
-            }
+    private UserInput replaceVars(UserInput input, Context currentContext) {
+        List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());
+        return new UserInput(MyStringUtils.replaceVars(input.fullText(), names));
     }
 }

@@ -1,5 +1,6 @@
 package com.nickd.util;
 
+import com.nickd.builder.Constants;
 import com.nickd.parser.MOSAxiomTreeParser;
 import openllet.owlapi.OWLHelper;
 import openllet.owlapi.OpenlletReasonerFactory;
@@ -15,27 +16,30 @@ import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
+import org.semanticweb.owlapi.util.AnnotationValueShortFormProvider;
 import org.semanticweb.owlapi.util.BidirectionalShortFormProviderAdapter;
-import org.semanticweb.owlapi.util.SimpleShortFormProvider;
+import org.semanticweb.owlapi.util.ShortFormProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+
+import static com.nickd.builder.Constants.BASE;
 
 public class Helper {
+
+    public OWLAnnotationProperty getLabelAnnotationProp() {
+        return defaultSearchLabel;
+    }
 
     @FunctionalInterface
     public interface LoadsOntology {
         OWLOntology apply(OWLOntologyManager mngr) throws OWLOntologyCreationException;
     }
 
-    public static String BASE = "https://nickdrummond.github.io/star-wars-ontology/ontologies";
-    public static String UTIL_BASE = "https://nickdrummond.github.io/star-wars-ontology/util";
+    OWLAnnotationProperty defaultSearchLabel;
 
     public OWLOntologyManager mngr;
     public OWLOntology ont;
@@ -43,10 +47,13 @@ public class Helper {
     public OWLReasoner r;
     public OWLReasoner told;
 
-    private final SimpleShortFormProvider sfp;
+    private final ShortFormProvider sfp;
+    private final BidirectionalShortFormProviderAdapter nameCache;
     private final ShortFormEntityChecker checker;
     private final ManchesterOWLSyntaxClassExpressionParser mos;
     private final MOSAxiomTreeParser mosAxiom;
+
+    public final OWLOntology suggestions;
 
     public long timeToLoad;
     public long timeToClassify;
@@ -68,20 +75,35 @@ public class Helper {
     public Helper(LoadsOntology loadsOntology, OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
         mngr = new OWLManager().get();
         mngr.setIRIMappers(Collections.singleton(ontologyIRIMapper));
-        mngr.addOntologyChangeListener(list -> list.forEach(c -> changedOntologies.add(c.getOntology())));
 
         long start = System.currentTimeMillis();
         ont = loadsOntology.apply(mngr);
         timeToLoad = System.currentTimeMillis() - start;
 
         df = mngr.getOWLDataFactory();
-        sfp = new SimpleShortFormProvider(); // TODO should use the given annotation prop (EDITOR_LABEL)
-        BidirectionalShortFormProviderAdapter cache = new BidirectionalShortFormProviderAdapter(sfp);
-        ont.getSignature(Imports.INCLUDED).forEach(cache::add);
-        checker = new ShortFormEntityChecker(cache);
+
+        defaultSearchLabel = annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
+        sfp = new AnnotationValueShortFormProvider(List.of(defaultSearchLabel), Collections.emptyMap(), mngr); // TODO should use the given annotation prop (EDITOR_LABEL)
+        nameCache = new BidirectionalShortFormProviderAdapter(sfp);
+        ont.getSignature(Imports.INCLUDED).forEach(nameCache::add);
+        checker = new ShortFormEntityChecker(nameCache);
         mos = new ManchesterOWLSyntaxClassExpressionParser(df, checker);
         mosAxiom = new MOSAxiomTreeParser(df, checker);
         told = new StructuralReasonerFactory().createNonBufferingReasoner(ont, new SimpleConfiguration());
+
+        try {
+            suggestions = mngr.createOntology(IRI.create(BASE + "/suggestions.owl.ttl"));
+            mngr.setOntologyFormat(suggestions, new TurtleDocumentFormat());
+        } catch (OWLOntologyCreationException e) {
+            throw new RuntimeException(e);
+        }
+
+        mngr.addOntologyChangeListener(list -> {
+            list.forEach(c -> {
+                changedOntologies.add(c.getOntology()); // mark the ontologies as written to
+                c.signature().forEach(nameCache::add); // update the name caches
+            });
+        });
 
         System.out.println("Loaded in " + timeToLoad + "ms");
     }

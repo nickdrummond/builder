@@ -1,24 +1,24 @@
 package com.nickd.util;
 
+import org.semanticweb.owlapi.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URI;
 import java.util.Arrays;
 
 public class CurlUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(CurlUtils.class);
 
-    public static void curl(URI uri, File output) throws IOException {
+    public static void curl(IRI iri, File output) throws IOException {
 
-        logger.info("Fetching: " + uri);
+        logger.info("Fetching: " + iri);
 
         ProcessBuilder pb = new ProcessBuilder(
                 "curl",
                 "-s",
-                uri.toString());
+                iri.toString());
 
         pb.directory(output.getParentFile());
         pb.redirectErrorStream(true);

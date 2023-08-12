@@ -22,8 +22,6 @@ public class SameDirectoryIRIMapper implements OWLOntologyIRIMapper {
     @Nullable
     @Override
     public IRI getDocumentIRI(IRI iri) {
-        return iri.getRemainder().
-                map(rem -> IRI.create(new File(base, rem)))
-                .orElseThrow(IllegalArgumentException::new);
+        return IRI.create(new File(base, iri.getShortForm()));
     }
 }

@@ -2,8 +2,12 @@ package com.nickd.builder;
 
 public class Constants {
 
-    public static final String WOOKIEEPEDIA_BASE = "https://starwars.fandom.com/wiki/";
+
+    public static String BASE = "https://nickdrummond.github.io/star-wars-ontology/ontologies";
+
     public static final String UTIL_BASE = "https://nickdrummond.github.io/star-wars-ontology/util";
+
+    public static final String WOOKIEEPEDIA_BASE = "https://starwars.fandom.com/wiki/";
 
     public static final String EDITOR_LABEL = "editorLabel";
 
