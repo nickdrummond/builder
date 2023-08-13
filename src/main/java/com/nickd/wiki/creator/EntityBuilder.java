@@ -1,6 +1,7 @@
-package com.nickd.util;
+package com.nickd.wiki.creator;
 
 import com.nickd.builder.Constants;
+import com.nickd.util.Helper;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
@@ -17,7 +18,6 @@ public class EntityBuilder {
     private final OWLAnnotationProperty seeAlso;
     private final OWLDatatype anyURI;
 
-
     public EntityBuilder(Helper helper, OWLAnnotationProperty editorLabel) {
         this.helper = helper;
         this.editorLabel = editorLabel;
@@ -26,10 +26,10 @@ public class EntityBuilder {
         rdfsLabel = helper.df.getRDFSLabel();
         seeAlso = helper.df.getRDFSSeeAlso();
         anyURI = helper.df.getOWLDatatype(XSDVocabulary.ANY_URI);
-
     }
 
-    public OWLNamedIndividual build(OWLClass cls, String editorLabel, String seeAlso, OWLOntology targetOntology) {
+
+    public OWLNamedIndividual build(OWLClass cls, String editorLabel, IRI seeAlso, OWLOntology targetOntology) {
         String label = fromId(editorLabel);
         OWLNamedIndividual ind = helper.ind(editorLabel);
 
@@ -73,8 +73,8 @@ public class EntityBuilder {
         return new AddAxiom(targetOntology, getAnnotationAxiom(rdfsLabel, ind, helper.lit(label, Constants.DEFAULT_LANG)));
     }
 
-    private AddAxiom addSeeAlso(String url, OWLNamedIndividual ind, OWLOntology targetOntology) {
-        return new AddAxiom(targetOntology, getAnnotationAxiom(seeAlso, ind, helper.lit(url, anyURI)));
+    private AddAxiom addSeeAlso(IRI iri, OWLNamedIndividual ind, OWLOntology targetOntology) {
+        return new AddAxiom(targetOntology, getAnnotationAxiom(seeAlso, ind, helper.lit(iri.getIRIString(), anyURI)));
     }
 
     private OWLAnnotationAssertionAxiom getAnnotationAxiom(OWLAnnotationProperty prop, OWLNamedIndividual ind, OWLLiteral value) {

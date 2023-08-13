@@ -1,16 +1,14 @@
 package com.nickd.builder.command;
 
 import com.nickd.builder.*;
-import com.nickd.util.EntityBuilder;
+import com.nickd.wiki.creator.EntityBuilder;
 import com.nickd.util.Helper;
 import com.nickd.util.MyStringUtils;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
-import org.semanticweb.owlapi.vocab.XSDVocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,7 +67,7 @@ public class NewInstanceCommand implements Command {
                 seeAlso = params.get(2);
             }
 
-            OWLNamedIndividual ind = entityBuilder.build(cls, label, seeAlso, targetOntology);
+            OWLNamedIndividual ind = entityBuilder.build(cls, label, IRI.create(seeAlso), targetOntology);
 
             return new OWLObjectListContext(helper.render(ind), context, ind);
         }

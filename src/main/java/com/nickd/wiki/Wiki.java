@@ -1,6 +1,10 @@
-package com.nickd.util;
+package com.nickd.wiki;
 
 import com.nickd.builder.Constants;
+import com.nickd.util.FinderUtils;
+import com.nickd.util.Helper;
+import com.nickd.wiki.creator.Creator;
+import com.nickd.wiki.creator.IndividualCreator;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
@@ -13,10 +17,15 @@ import java.util.Optional;
 
 public class Wiki {
 
+    private static Map<String, Creator> selectorMap = Map.of(
+            "#app_characters + table + .appearances a", new IndividualCreator("Living_Thing"),
+            "#app_locations + .appearances a", new IndividualCreator("Place") // TODO locatedIn based on tree
+    );
+
     private final static Map<IRI, WikiPage> cache = new HashMap<>();
 
     public static WikiPage forIRI(Helper helper, IRI iri) throws IOException {
-        cache.putIfAbsent(iri, new WikiPage(helper, iri));
+        cache.putIfAbsent(iri, new WikiPage(helper, iri, selectorMap));
         return cache.get(iri);
     }
 

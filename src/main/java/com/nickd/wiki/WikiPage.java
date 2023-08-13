@@ -1,6 +1,11 @@
-package com.nickd.util;
+package com.nickd.wiki;
 
 import com.nickd.builder.Constants;
+import com.nickd.wiki.creator.Creator;
+import com.nickd.wiki.creator.EntityBuilder;
+import com.nickd.util.CurlUtils;
+import com.nickd.util.FinderUtils;
+import com.nickd.util.Helper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,11 +24,13 @@ public class WikiPage {
 
     private final Logger logger = LoggerFactory.getLogger(WikiPage.class);
 
-    private final List<String> linkSelectors = List.of(
-            "aside.portable-infobox a",
-            "#mw-content-text p a");
+//    private final List<String> linkSelectors = List.of(
+//            "aside.portable-infobox a",
+//            "#mw-content-text p a"
+//    );
 
     private final Helper helper;
+    private final Map<String, Creator> selectorMap;
     private OWLAnnotationProperty seeAlso;
     private Document doc;
 
@@ -32,16 +39,18 @@ public class WikiPage {
     private final LinkedHashMap<OWLEntity, String> suggestions = new LinkedHashMap<>();
     private IRI iri;
 
-    WikiPage(Helper helper, IRI iri) throws IOException {
+    WikiPage(Helper helper, IRI iri, Map<String, Creator> selectorMap) throws IOException {
         this.helper = helper;
         this.iri = iri;
         this.doc = getFromWebOrCache(iri);
+        this.selectorMap = selectorMap;
 
-        indexEntity(iri.toString()); // index self
-        buildLinksIndex(iri); // index links
+//        indexEntity(iri.toString(), creator); // TODO index self
+
+        buildLinksIndex(); // index links
     }
 
-    private void buildLinksIndex(IRI iri) {
+    private void buildLinksIndex() {
 
         URI uri = iri.toURI();
         String path = uri.getPath();
@@ -50,30 +59,31 @@ public class WikiPage {
 
         suggestType(doc).forEach(t -> System.out.println(helper.render(t)));
 
-        linkSelectors.stream()
-                .map(s -> doc.select(s))
-                .flatMap(Collection::stream)
-                .map(l -> l.attr("href"))
-                .distinct()
-                .filter(h -> h.startsWith(base))
-                .map(h -> (h.startsWith("/") ? root + h : h))
-                .forEach(this::indexEntity);
+        selectorMap.forEach( (sel, creator) -> {
+
+            Elements selected = doc.select(sel);
+            if (selected.isEmpty()) {
+                System.err.println(sel + " matches nothing");
+            }
+            selected.stream()
+                    .map(l -> l.attr("href"))
+                    .distinct()
+                    .filter(h -> h.startsWith(base))
+                    .map(h -> IRI.create((h.startsWith("/") ? root + h : h)))
+                    .forEach(href -> indexEntity(href, creator));
+        });
     }
 
-    private void indexEntity(String href) {
-        List<OWLEntity> matches = FinderUtils.annotationExact(href, seeAlso, helper);
+    private void indexEntity(IRI iri, Creator creator) {
+        String iriString = iri.getIRIString();
+        List<OWLEntity> matches = FinderUtils.annotationExact(iriString, seeAlso, helper);
         if (matches.isEmpty()) {
-            OWLNamedIndividual ind = addSuggestion(href);
-            suggestions.put(ind, href);
+            OWLEntity entity = creator.create(wikiPageName(iri), iri, helper);
+            // TODO hierarchies - eg location
+            suggestions.put(entity, iriString);
         } else {
-            matches.forEach(e -> knownEntities.put(e, href));
+            matches.forEach(e -> knownEntities.put(e, iriString));
         }
-    }
-
-    private OWLNamedIndividual addSuggestion(String href) {
-        OWLAnnotationProperty editorLabel = helper.annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
-        EntityBuilder entityBuilder = new EntityBuilder(helper, editorLabel);
-        return entityBuilder.build(null, wikiPageName(IRI.create(href)), href, helper.suggestions);
     }
 
     // Will only work with species
@@ -124,10 +134,6 @@ public class WikiPage {
 
     public List<OWLEntity> getUnknown() {
         return new ArrayList<>(suggestions.keySet());
-    }
-
-    public String getUrl() {
-        return null;
     }
 
     public IRI getIri() {

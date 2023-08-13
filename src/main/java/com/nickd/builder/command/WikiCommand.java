@@ -4,16 +4,16 @@ import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
 import com.nickd.util.*;
+import com.nickd.wiki.WikiPage;
 import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.nickd.util.Wiki.forString;
+import static com.nickd.wiki.Wiki.forString;
 
 /**
  * suggest https://starwars.fandom.com/wiki/Bix_Caleen
