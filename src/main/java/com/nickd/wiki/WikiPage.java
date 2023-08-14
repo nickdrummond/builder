@@ -2,7 +2,6 @@ package com.nickd.wiki;
 
 import com.nickd.builder.Constants;
 import com.nickd.wiki.creator.Creator;
-import com.nickd.wiki.creator.EntityBuilder;
 import com.nickd.util.CurlUtils;
 import com.nickd.util.FinderUtils;
 import com.nickd.util.Helper;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +28,7 @@ public class WikiPage {
 //    );
 
     private final Helper helper;
-    private final Map<String, Creator> selectorMap;
+    private final List<Creator> selectors;
     private OWLAnnotationProperty seeAlso;
     private Document doc;
 
@@ -39,11 +37,11 @@ public class WikiPage {
     private final LinkedHashMap<OWLEntity, String> suggestions = new LinkedHashMap<>();
     private IRI iri;
 
-    WikiPage(Helper helper, IRI iri, Map<String, Creator> selectorMap) throws IOException {
+    WikiPage(Helper helper, IRI iri, List<Creator> selectors) throws IOException {
         this.helper = helper;
         this.iri = iri;
         this.doc = getFromWebOrCache(iri);
-        this.selectorMap = selectorMap;
+        this.selectors = selectors;
 
 //        indexEntity(iri.toString(), creator); // TODO index self
 
@@ -52,38 +50,11 @@ public class WikiPage {
 
     private void buildLinksIndex() {
 
-        URI uri = iri.toURI();
-        String path = uri.getPath();
-        String base = path.substring(0, path.lastIndexOf("/"));
-        String root = uri.getScheme() + "://" + uri.getAuthority();
-
         suggestType(doc).forEach(t -> System.out.println(helper.render(t)));
 
-        selectorMap.forEach( (sel, creator) -> {
-
-            Elements selected = doc.select(sel);
-            if (selected.isEmpty()) {
-                System.err.println(sel + " matches nothing");
-            }
-            selected.stream()
-                    .map(l -> l.attr("href"))
-                    .distinct()
-                    .filter(h -> h.startsWith(base))
-                    .map(h -> IRI.create((h.startsWith("/") ? root + h : h)))
-                    .forEach(href -> indexEntity(href, creator));
+        selectors.forEach(creator -> {
+            creator.build(this);
         });
-    }
-
-    private void indexEntity(IRI iri, Creator creator) {
-        String iriString = iri.getIRIString();
-        List<OWLEntity> matches = FinderUtils.annotationExact(iriString, seeAlso, helper);
-        if (matches.isEmpty()) {
-            OWLEntity entity = creator.create(wikiPageName(iri), iri, helper);
-            // TODO hierarchies - eg location
-            suggestions.put(entity, iriString);
-        } else {
-            matches.forEach(e -> knownEntities.put(e, iriString));
-        }
     }
 
     // Will only work with species
@@ -123,7 +94,7 @@ public class WikiPage {
         return new File(Constants.CACHES + wikiPageName(iri) + ".html");
     }
 
-    private String wikiPageName(IRI iri) {
+    public String wikiPageName(IRI iri) {
         String path = iri.toURI().getPath();
         return path.substring(path.lastIndexOf("/") + 1);
     }
@@ -138,5 +109,21 @@ public class WikiPage {
 
     public IRI getIri() {
         return iri;
+    }
+
+    public Document getDocument() {
+        return doc;
+    }
+
+    public Helper getHelper() {
+        return helper;
+    }
+
+    public void addSuggestion(OWLEntity entity, String iriString) {
+        suggestions.put(entity, iriString);
+    }
+
+    public void addKnownEntities(OWLEntity entity, String iriString) {
+        knownEntities.put(entity, iriString);
     }
 }

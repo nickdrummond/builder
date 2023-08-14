@@ -1,8 +1,8 @@
 package com.nickd.wiki;
 
-import com.nickd.builder.Constants;
 import com.nickd.util.FinderUtils;
 import com.nickd.util.Helper;
+import com.nickd.wiki.creator.ClassCreator;
 import com.nickd.wiki.creator.Creator;
 import com.nickd.wiki.creator.IndividualCreator;
 import org.semanticweb.owlapi.model.*;
@@ -16,10 +16,22 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Wiki {
+    public static final String WIKI = "https://starwars.fandom.com";
+    public static final String PATH = "/wiki/";
+    public static final String BASE = WIKI + PATH;
 
-    private static Map<String, Creator> selectorMap = Map.of(
-            "#app_characters + table + .appearances a", new IndividualCreator("Living_Thing"),
-            "#app_locations + .appearances a", new IndividualCreator("Place") // TODO locatedIn based on tree
+    private static List<Creator> selectorMap = List.of(
+            new IndividualCreator("#app_characters + table + .appearances a")
+                    .withType("Living_Thing"),
+            new IndividualCreator("> a")
+                    .withCommonParent("#app_locations + .appearances li") // needed as we can only select down
+                    .withType("Place")
+                    .withRelation("locatedIn", "> ul > li > a"),
+            new ClassCreator("> a")
+                    .withCommonParent("#app_vehicles + .appearances li") // needed as we can only select down
+                    .withType("Vehicle")
+                    .withSubclasses("> ul > li > a")
+
     );
 
     private final static Map<IRI, WikiPage> cache = new HashMap<>();
@@ -69,6 +81,6 @@ public class Wiki {
     }
 
     private static IRI getWikiUrl(String ref) {
-        return IRI.create(Constants.WOOKIEEPEDIA_BASE + ref);
+        return IRI.create(BASE + ref);
     }
 }

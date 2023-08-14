@@ -5,6 +5,7 @@ import com.nickd.util.FinderUtils;
 import com.nickd.util.Helper;
 import com.nickd.wiki.Wiki;
 import com.nickd.wiki.WikiPage;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jsoup.select.Elements;
 import org.semanticweb.owlapi.model.*;
 
@@ -12,32 +13,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class IndividualCreator implements Creator<OWLNamedIndividual> {
+public class ClassCreator implements Creator<OWLClass> {
     private String parentSelector;
     private final String selector;
-    private String subjectSelector;
+    private String subclassesSelector;
     private String typeName;
-    private String relationName;
 
-    public IndividualCreator(String selector) {
+    public ClassCreator(String selector) {
         this.selector = selector;
     }
 
     @Override
-    public IndividualCreator withType(String typeName) {
+    public ClassCreator withType(String typeName) {
         this.typeName = typeName;
         return this;
     }
 
-    public IndividualCreator withCommonParent(String parentSelector) {
+    @Override
+    public ClassCreator withRelation(String relationName, String subjectSelector) {
+        throw new NotImplementedException("TODO");
+    }
+
+    public ClassCreator withCommonParent(String parentSelector) {
         this.parentSelector = parentSelector;
         return this;
     }
 
-    @Override
-    public IndividualCreator withRelation(String relationName, String subjectSelector) {
-        this.relationName = relationName;
-        this.subjectSelector = subjectSelector;
+    public ClassCreator withSubclasses(String subclassesSelector) {
+        this.subclassesSelector = subclassesSelector;
         return this;
     }
 
@@ -57,35 +60,39 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
         if (selected.isEmpty()) {
             System.err.println(selector + " matches nothing");
         }
-        if (relationName != null && subjectSelector != null) {
-            makeRelations(wikiPage, parent);
+        if (subclassesSelector != null) {
+            makeSubclasses(wikiPage, parent);
         }
         return getLinks(selected);
     }
 
-    private void makeRelations(WikiPage wikiPage, Elements parents) {
+    private void makeSubclasses(WikiPage wikiPage, Elements parents) {
         Helper helper = wikiPage.getHelper();
-        OWLObjectProperty rel = helper.prop(relationName);
 
         List<OWLOntologyChange> changes = new ArrayList<>();
         parents.forEach(parent -> {
-            Elements object = parent.select(selector);
-            String objectStr = object.get(0).attr("href");
-            OWLNamedIndividual objectInd = indForHref(objectStr, wikiPage);
+            Elements superclassNode = parent.select(selector);
+            if (superclassNode.isEmpty()) {
+                System.out.println("selector.isEmpty() = " + selector);
+            }
+            else {
+                String superclassHref = superclassNode.get(0).attr("href");
+                OWLClass superclass = clsForHref(superclassHref, wikiPage);
 
-            Elements subjects = parent.select(subjectSelector);
-            subjects.forEach(sub -> {
-                String subjectStr = sub.attr("href");
-                OWLNamedIndividual subjectInd = indForHref(subjectStr, wikiPage);
-                changes.add(new AddAxiom(helper.suggestions, helper.df.getOWLObjectPropertyAssertionAxiom(rel, subjectInd, objectInd)));
-            });
+                Elements subclasses = parent.select(subclassesSelector);
+                subclasses.forEach(sub -> {
+                    String subclassHref = sub.attr("href");
+                    OWLClass subclass = clsForHref(subclassHref, wikiPage);
+                    changes.add(new AddAxiom(helper.suggestions, helper.df.getOWLSubClassOfAxiom(subclass, superclass)));
+                });
+            }
         });
         helper.mngr.applyChanges(changes);
     }
 
-    private OWLNamedIndividual indForHref(String href, WikiPage wikiPage) {
+    private OWLClass clsForHref(String href, WikiPage wikiPage) {
         String name = href.substring(href.lastIndexOf("/") + 1);
-        return wikiPage.getHelper().ind(name); // TODO lookup if entity already exists with this ref
+        return wikiPage.getHelper().cls(name); // TODO lookup if entity already exists with this ref
     }
 
     private Stream<IRI> getLinks(Elements selected) {
@@ -113,11 +120,11 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
     }
 
     @Override
-    public OWLNamedIndividual create(String name, IRI iri, Helper helper) {
+    public OWLClass create(String name, IRI iri, Helper helper) {
         OWLAnnotationProperty editorLabel = helper.annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
         OWLClass rootType = helper.cls(typeName);
         EntityBuilder entityBuilder = new EntityBuilder(helper, editorLabel);
-        return entityBuilder.build(rootType, name, iri, helper.suggestions);
+        return entityBuilder.buildCls(rootType, name, iri, helper.suggestions);
     }
 
 }
