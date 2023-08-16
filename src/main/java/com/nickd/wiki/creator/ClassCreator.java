@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class ClassCreator implements Creator<OWLClass> {
-    private String parentSelector;
     private final String selector;
+    private String parentSelector;
     private String subclassesSelector;
     private String typeName;
 
@@ -56,14 +56,12 @@ public class ClassCreator implements Creator<OWLClass> {
         if (parentSelector != null) {
             parent = parent.select(parentSelector);
         }
-        Elements selected = parent.select(selector);
-        if (selected.isEmpty()) {
-            System.err.println(selector + " matches nothing");
-        }
+
         if (subclassesSelector != null) {
             makeSubclasses(wikiPage, parent);
         }
-        return getLinks(selected);
+
+        return getLinks(parent);
     }
 
     private void makeSubclasses(WikiPage wikiPage, Elements parents) {
@@ -90,12 +88,12 @@ public class ClassCreator implements Creator<OWLClass> {
         helper.mngr.applyChanges(changes);
     }
 
-    private OWLClass clsForHref(String href, WikiPage wikiPage) {
-        String name = href.substring(href.lastIndexOf("/") + 1);
-        return wikiPage.getHelper().cls(name); // TODO lookup if entity already exists with this ref
-    }
+    private Stream<IRI> getLinks(Elements parent) {
+        Elements selected = parent.select(selector);
+        if (selected.isEmpty()) {
+            System.err.println(selector + " matches nothing");
+        }
 
-    private Stream<IRI> getLinks(Elements selected) {
         return getHrefs(selected).map(h -> IRI.create(Wiki.WIKI + h));
     }
 
@@ -127,4 +125,8 @@ public class ClassCreator implements Creator<OWLClass> {
         return entityBuilder.buildCls(rootType, name, iri, helper.suggestions);
     }
 
+    private OWLClass clsForHref(String href, WikiPage wikiPage) {
+        String name = href.substring(href.lastIndexOf("/") + 1);
+        return wikiPage.getHelper().cls(name); // TODO lookup if entity already exists with this ref
+    }
 }

@@ -28,7 +28,12 @@ public class SaveCommand implements Command {
     @Override
     public Context handle(UserInput input, Context context) {
         try {
-            helper.saveChanged();
+            if (input.params().size() == 1 && input.params().get(0).equals("all")) {
+                helper.saveAll();
+            }
+            else {
+                helper.saveChanged();
+            }
         } catch (OWLOntologyStorageException e) {
             logger.error("Failed to save changed ontologies", e);
         }

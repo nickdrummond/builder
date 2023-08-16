@@ -1,6 +1,7 @@
 package com.nickd.wiki.creator;
 
 import com.nickd.builder.Constants;
+import com.nickd.util.FinderUtils;
 import com.nickd.util.Helper;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
@@ -28,9 +29,7 @@ public class EntityBuilder {
         anyURI = helper.df.getOWLDatatype(XSDVocabulary.ANY_URI);
     }
 
-
     public OWLNamedIndividual build(OWLClass cls, String editorLabel, IRI seeAlso, OWLOntology targetOntology) {
-        String label = fromId(editorLabel);
         OWLNamedIndividual ind = helper.ind(editorLabel);
 
         List<OWLOntologyChange> changes = new ArrayList<>();
@@ -38,44 +37,44 @@ public class EntityBuilder {
         if (cls != null) {
             changes.add(addType(ind, cls, targetOntology));
         }
-        changes.add(addDeclaration(ind, targetOntology));
-        changes.add(addLabel(label, ind, targetOntology));
-        changes.add(addEditorLabel(editorLabel, ind, targetOntology));
-        changes.add(addLegacyId(ind, targetOntology));
 
-        if (seeAlso != null) {
-            // TODO else check if there is a ref at WOOKIEEPEDIA_BASE/label
-            changes.add(addSeeAlso(seeAlso, ind, targetOntology));
-        }
-
-        helper.mngr.applyChanges(changes);
+        buildEntity(ind, changes, editorLabel, seeAlso, targetOntology);
 
         return ind;
     }
 
-
     public OWLClass buildCls(OWLClass superclass, String editorLabel, IRI seeAlso, OWLOntology targetOntology) {
-        String label = fromId(editorLabel);
         OWLClass cls = helper.cls(editorLabel);
 
         List<OWLOntologyChange> changes = new ArrayList<>();
 
-        if (superclass != null) {
+        // If there is not already a superclass in the suggestion ontology
+        if (superclass != null && targetOntology.getSubClassAxiomsForSubClass(cls).isEmpty()) {
             changes.add(addSuperclass(cls, superclass, targetOntology));
         }
-        changes.add(addDeclaration(cls, targetOntology));
-        changes.add(addLabel(label, cls, targetOntology));
-        changes.add(addEditorLabel(editorLabel, cls, targetOntology));
-        changes.add(addLegacyId(cls, targetOntology));
+
+        buildEntity(cls, changes, editorLabel, seeAlso, targetOntology);
+
+        return cls;
+    }
+
+    private void buildEntity(OWLEntity entity,
+                             List<OWLOntologyChange> changes,
+                             String editorLabel,
+                             IRI seeAlso,
+                             OWLOntology targetOntology) {
+
+        changes.add(addDeclaration(entity, targetOntology));
+        changes.add(addLabel(fromId(editorLabel), entity, targetOntology));
+        changes.add(addEditorLabel(editorLabel, entity, targetOntology));
+        changes.add(addLegacyId(entity, targetOntology));
 
         if (seeAlso != null) {
             // TODO else check if there is a ref at WOOKIEEPEDIA_BASE/label
-            changes.add(addSeeAlso(seeAlso, cls, targetOntology));
+            changes.add(addSeeAlso(seeAlso, entity, targetOntology));
         }
 
         helper.mngr.applyChanges(changes);
-
-        return cls;
     }
 
     private OWLOntologyChange addSuperclass(OWLClass cls, OWLClass superclass, OWLOntology targetOntology) {
@@ -108,10 +107,6 @@ public class EntityBuilder {
 
     private OWLAnnotationAssertionAxiom getAnnotationAxiom(OWLAnnotationProperty prop, OWLEntity ind, OWLLiteral value) {
         return helper.df.getOWLAnnotationAssertionAxiom(prop, ind.getIRI(), value);
-    }
-
-    private String toId(String label) {
-        return label.replaceAll(" ", "_");
     }
 
     private String fromId(String label) {

@@ -20,19 +20,36 @@ public class Wiki {
     public static final String PATH = "/wiki/";
     public static final String BASE = WIKI + PATH;
 
-    private static List<Creator> selectorMap = List.of(
+    private static final List<Creator<? extends OWLEntity>> selectorMap = List.of(
             new IndividualCreator("#app_characters + table + .appearances a")
-                    .withType("Living_Thing"),
-            new IndividualCreator("> a")
-                    .withCommonParent("#app_locations + .appearances li") // needed as we can only select down
-                    .withType("Place")
-                    .withRelation("locatedIn", "> ul > li > a"),
-            new ClassCreator("> a")
-                    .withCommonParent("#app_vehicles + .appearances li") // needed as we can only select down
-                    .withType("Vehicle")
-                    .withSubclasses("> ul > li > a")
+                    .withType("Living_thing"),
 
+            hierarchicalIndividualCreator("#app_locations", "Place","locatedIn"),
+            hierarchicalIndividualCreator("#app_events", "Event","during"),
+
+            hierarchicalClassCreator("#app_vehicles", "Vehicle"),
+            hierarchicalClassCreator("#app_creatures", "Living_thing"),
+            hierarchicalClassCreator("#app_droids", "Droid"),
+            hierarchicalClassCreator("#app_species", "Living_thing"),
+            hierarchicalClassCreator("#app_technology", "Equipment"),
+            hierarchicalClassCreator("#app_miscellanea", "Object")
+            // TODO organisations and titles are a mixture of inds and classes
     );
+
+    private static ClassCreator hierarchicalClassCreator(String rootId, String baseType) {
+        return new ClassCreator("> a")
+                .withCommonParent(rootId + " + .appearances li") // needed as we can only select down
+                .withType(baseType)
+                .withSubclasses("> ul > li > a");
+    }
+
+    private static IndividualCreator hierarchicalIndividualCreator(String rootId, String baseType, String relation) {
+        return new IndividualCreator("> a")
+                .withCommonParent(rootId + " + .appearances li") // needed as we can only select down
+                .withType(baseType)
+                .withRelation(relation, "> ul > li > a");
+    }
+
 
     private final static Map<IRI, WikiPage> cache = new HashMap<>();
 

@@ -28,16 +28,17 @@ public class WikiPage {
 //    );
 
     private final Helper helper;
-    private final List<Creator> selectors;
     private OWLAnnotationProperty seeAlso;
-    private Document doc;
+    private final Document doc;
+    private final IRI iri;
+
+    private final List<Creator<? extends OWLEntity>> selectors;
 
     // Retain order of the links for more pertinent suggestions
     private final LinkedHashMap<OWLEntity, String> knownEntities = new LinkedHashMap<>();
     private final LinkedHashMap<OWLEntity, String> suggestions = new LinkedHashMap<>();
-    private IRI iri;
 
-    WikiPage(Helper helper, IRI iri, List<Creator> selectors) throws IOException {
+    WikiPage(Helper helper, IRI iri, List<Creator<? extends OWLEntity>> selectors) throws IOException {
         this.helper = helper;
         this.iri = iri;
         this.doc = getFromWebOrCache(iri);
@@ -50,7 +51,7 @@ public class WikiPage {
 
     private void buildLinksIndex() {
 
-        suggestType(doc).forEach(t -> System.out.println(helper.render(t)));
+//        suggestType(doc).forEach(t -> System.out.println(helper.render(t)));
 
         selectors.forEach(creator -> {
             creator.build(this);
@@ -58,28 +59,28 @@ public class WikiPage {
     }
 
     // Will only work with species
-    private Set<OWLClass> suggestType(Document doc) {
-        Set<String> likelyTypes = Set.of("Species");
-
-        Elements data = doc.select("aside.portable-infobox .pi-data");
-
-        for (Element d : data) {
-            String property = d.select(".pi-data-label").first().text();
-            Element value = d.select(".pi-data-value").first();
-//            String valueString = value.text();
-            String valueLink = value.select("a[href]").first().text();
-            System.out.println(property + " = " + valueLink);
-            if (likelyTypes.contains(property)) {
-                Set<OWLClass> clses = FinderUtils.annotationExact(valueLink, seeAlso, helper).stream()
-                        .filter(OWLEntity::isOWLClass)
-                        .map(AsOWLClass::asOWLClass)
-                        .collect(Collectors.toSet());
-                return clses;
-
-            }
-        }
-        return Collections.emptySet();
-    }
+//    private Set<OWLClass> suggestType(Document doc) {
+//        Set<String> likelyTypes = Set.of("Species");
+//
+//        Elements data = doc.select("aside.portable-infobox .pi-data");
+//
+//        for (Element d : data) {
+//            String property = d.select(".pi-data-label").first().text();
+//            Element value = d.select(".pi-data-value").first();
+////            String valueString = value.text();
+//            String valueLink = value.select("a[href]").first().text();
+//            System.out.println(property + " = " + valueLink);
+//            if (likelyTypes.contains(property)) {
+//                Set<OWLClass> clses = FinderUtils.annotationExact(valueLink, seeAlso, helper).stream()
+//                        .filter(OWLEntity::isOWLClass)
+//                        .map(AsOWLClass::asOWLClass)
+//                        .collect(Collectors.toSet());
+//                return clses;
+//
+//            }
+//        }
+//        return Collections.emptySet();
+//    }
 
     private Document getFromWebOrCache(IRI iri) throws IOException {
         File cacheFile = cacheFileFor(iri);

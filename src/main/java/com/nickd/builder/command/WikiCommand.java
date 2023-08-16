@@ -2,6 +2,7 @@ package com.nickd.builder.command;
 
 import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
+import com.nickd.builder.SuggestionContext;
 import com.nickd.builder.UserInput;
 import com.nickd.util.*;
 import com.nickd.wiki.WikiPage;
@@ -57,12 +58,10 @@ public class WikiCommand implements Command {
 
                 System.out.println(wikiPage.getIri());
 
-                //TODO suggestions need to stay with their seeAlso for creation?
-
                 if (params.size() == 2) {
                     String query = params.get(1);
                     if (query.equals("suggest")) {
-                        return new OWLObjectListContext(refUrl, context, wikiPage.getUnknown());
+                        return new SuggestionContext(new OWLObjectListContext(refUrl, context, wikiPage.getUnknown()));
                     }
                 }
                 return new OWLObjectListContext(refUrl, context, wikiPage.getKnown());

@@ -93,6 +93,8 @@ public class Helper {
 
         try {
             suggestions = mngr.createOntology(IRI.create(BASE + "/suggestions.owl.ttl"));
+            ont.getOntologyID().getOntologyIRI().ifPresent(iri ->
+                    suggestions.applyChange(new AddImport(suggestions, df.getOWLImportsDeclaration(iri))));
             mngr.setOntologyFormat(suggestions, new TurtleDocumentFormat());
         } catch (OWLOntologyCreationException e) {
             throw new RuntimeException(e);
@@ -102,6 +104,7 @@ public class Helper {
             list.forEach(c -> {
                 changedOntologies.add(c.getOntology()); // mark the ontologies as written to
                 c.signature().forEach(nameCache::add); // update the name caches
+                // TODO kill reasoners
             });
         });
 
@@ -200,7 +203,15 @@ public class Helper {
     }
 
     public void saveChanged() throws OWLOntologyStorageException {
-        for (OWLOntology o : changedOntologies) {
+        save(changedOntologies);
+    }
+
+    public void saveAll() throws OWLOntologyStorageException {
+        save(mngr.getOntologies());
+    }
+
+    public void save(Set<OWLOntology> onts) throws OWLOntologyStorageException {
+        for (OWLOntology o : onts) {
             OWLDocumentFormat format = o.getOWLOntologyManager().getOntologyFormat(o);
             if (format instanceof RioTurtleDocumentFormat) {
                 TurtleDocumentFormat ttl = new TurtleDocumentFormat();
@@ -212,7 +223,6 @@ public class Helper {
     }
 
     public void save(String location) throws OWLOntologyStorageException {
-
         File base = new File(location);
         System.out.println("Saving ontologies to " + base.getAbsolutePath());
         if (!base.exists()) {
