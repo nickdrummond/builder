@@ -54,7 +54,7 @@ public class MoveAxiomCommand implements Command {
             ax = context.getOWLAxiom();
         }
 
-        OWLOntology to = context.getOntology(helper);
+        OWLOntology to = context.getOntology();
         ax.ifPresent(a -> move(a, to));
 
         return context;

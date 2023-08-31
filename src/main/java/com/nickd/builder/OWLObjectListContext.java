@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class OWLObjectListContext extends ContextBase {
+public class OWLObjectListContext extends AbstractContext {
 
     private final List<? extends OWLObject> selectedObjects;
 
@@ -52,18 +52,15 @@ public class OWLObjectListContext extends ContextBase {
     }
 
     @Override
-    public OWLOntology getOntology(Helper helper) {
+    public OWLOntology getOntology() {
         if (isSingleSelection()) {
             OWLObject o = getSelected();
             if (o instanceof OWLOntology) {
                 return (OWLOntology) o;
             }
         }
-        else if (isRoot()) {
-            return helper.ont; // root
-        }
 
-        return parent.getOntology(helper); // check parents
+        return parent.getOntology(); // check parents
     }
 
 

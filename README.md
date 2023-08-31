@@ -22,6 +22,7 @@ Purely an experiment in navigating/building ontologies in a command line interfa
 * Complete parser for all axiom types
 * Axiom show - order referenced entities in MOS order (if possible)
 * ont (searchterm)
+* detect file changes and allow reload
 * 
 
 ## Bugs
@@ -29,8 +30,14 @@ Purely an experiment in navigating/building ontologies in a command line interfa
     2… > Ferrix > Ferrix (112) > Free_Trade_sector >> new Sector &1 https://starwars.fandom.com/wiki/Free_Trade_sector
     3… > Ferrix (112) > Free_Trade_sector > ontologies#&1 >> show
     0) ontologies#&1 Type Sector...
-### Cannot parse Subclass Axiom
-    add Verlo_Skiff ?SubClassOf? hadRole some (Police and inOrganisation value Pre-Mor_Security_Inspection_team)
+### Cannot markup parse error for Type Axiom if incomplete (works if parses)
+	8) Jedi_Temple_Guard
+	9) Guard
+     find Pre > Verlo_Skiff > find Gua >> <
+     find Pre > Verlo_Skiff >> + &0 Type hadRole some (Guard and inOr
+     find Pre > Verlo_Skiff > + Verlo_Skiff ?? hadRole some (Guard and inOrganisation >>
+
+It's when there are brackets!!
 
 ## Thoughts
 

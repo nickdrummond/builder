@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.nickd.builder.Constants.BASE;
 
@@ -59,6 +60,10 @@ public class Helper {
     public long timeToClassify;
 
     private final Set<OWLOntology> changedOntologies = new HashSet<>();
+
+    public Helper() throws OWLOntologyCreationException {
+        this(OWLOntologyManager::createOntology, ontologyIRI -> ontologyIRI);
+    }
 
     public Helper(final File ontFile) throws OWLOntologyCreationException {
         this(ontFile, new SameDirectoryIRIMapper(ontFile));
@@ -250,11 +255,7 @@ public class Helper {
         }
     }
 
-    public OWLEntity entityForIRI(IRI iri) {
-        Set<OWLEntity> matches = ont.getEntitiesInSignature(iri, Imports.INCLUDED);
-        if (matches.isEmpty()) {
-            throw new RuntimeException("Cannot find entity for " + iri);
-        }
-        return matches.iterator().next();
+    public Stream<OWLEntity> entitiesForIRI(IRI iri, Stream<OWLOntology> ontologies) {
+        return ontologies.flatMap(ont -> ont.entitiesInSignature(iri)).distinct();
     }
 }

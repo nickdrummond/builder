@@ -61,7 +61,7 @@ public class WikiCommand implements Command {
                 if (params.size() == 2) {
                     String query = params.get(1);
                     if (query.equals("suggest")) {
-                        return new SuggestionContext(new OWLObjectListContext(refUrl, context, wikiPage.getUnknown()));
+                        return new SuggestionContext(helper.suggestions, new OWLObjectListContext(refUrl, context, wikiPage.getUnknown()));
                     }
                 }
                 return new OWLObjectListContext(refUrl, context, wikiPage.getKnown());

@@ -4,14 +4,14 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ContextBase implements Context {
+public abstract class AbstractContext implements Context {
 
     @Nonnull
     protected final String name;
 
     protected final Context parent;
 
-    public ContextBase(@Nonnull String name, Context parent) {
+    public AbstractContext(@Nonnull String name, Context parent) {
         this.name = name;
         this.parent = parent;
     }

@@ -19,7 +19,7 @@ public class IndividualsCommand implements Command {
 
     @Override
     public Context handle(UserInput input, Context context) {
-        OWLOntology ont = context.getOntology(helper);
+        OWLOntology ont = context.getOntology();
         Optional<OWLClass> cls = context.getOWLClass();
         List<OWLNamedIndividual> results = cls.isPresent() ? getInstances(cls.get()) : getAllIndividualsInSig(ont);
         return new OWLObjectListContext("individuals", context, results);

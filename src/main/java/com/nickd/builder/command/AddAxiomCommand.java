@@ -4,6 +4,7 @@ import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
 import com.nickd.util.Helper;
+import com.nickd.util.MyStringUtils;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AddAxiomCommand implements Command {
 
@@ -31,9 +33,14 @@ public class AddAxiomCommand implements Command {
 
     @Override
     public Context handle(UserInput input, Context context) {
+
+        if (input.fullText().contains("&")) {
+            input = replaceVars(input, context);
+        }
+
         String param = input.paramsAsString();
 
-        OWLOntology targetOntology = context.getOntology(helper);
+        OWLOntology targetOntology = context.getOntology();
 
         try {
             OWLAxiom ax = helper.mosAxiom(param);
@@ -43,7 +50,7 @@ public class AddAxiomCommand implements Command {
             logger.debug("Added " + helper.render(ax) + " to " + helper.render(targetOntology));
 
             helper.mngr.applyChanges(changes);
-            return new OWLObjectListContext(helper.render(ax), context, ax);
+            return context;
 
         }
         catch (ParserException e) {
@@ -56,5 +63,10 @@ public class AddAxiomCommand implements Command {
                 return placeHolder;
             }
         }
+    }
+
+    private UserInput replaceVars(UserInput input, Context currentContext) {
+        List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());
+        return new UserInput(MyStringUtils.replaceVars(input.fullText(), names));
     }
 }

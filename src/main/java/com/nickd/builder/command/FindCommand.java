@@ -45,8 +45,9 @@ public class FindCommand implements Command {
             if (results.isEmpty()) {
                 logger.warn("Empty results for " + input);
             }
-            if (!results.isEmpty()) {
-                return new OWLObjectListContext(input.fullText(), context, results);
+            else {
+                String name = results.size() == 1 ? helper.render(results.get(0)) : input.fullText();
+                return new OWLObjectListContext(name, context, results);
             }
         }
         return context;

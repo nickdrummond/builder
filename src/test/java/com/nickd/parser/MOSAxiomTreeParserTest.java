@@ -1,5 +1,6 @@
 package com.nickd.parser;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -127,6 +129,23 @@ public class MOSAxiomTreeParserTest {
         OWLNamedIndividual a = ind("a");
         OWLAxiom expected = df.getOWLAnnotationAssertionAxiom(annotP("ap"), a.getIRI(), lit("value"));
         assertEquals(expected, parser.parse("a ap \"value\""));
+    }
+
+    @Test
+    public void missingClosingBracket() {
+        OWLNamedIndividual one = ind("one");
+        OWLObjectProperty boo = objP("boo");
+        OWLClass aClass = cls("AClass");
+
+        try {
+            parser.parse("one Type boo some (AClass");
+        }
+        catch (ParserException e) {
+            assertThat(e.getExpectedKeywords(), CoreMatchers.hasItem(")"));
+            assertEquals(24, e.getColumnNumber());
+            assertEquals("AClass", e.getCurrentToken());
+            assertEquals(6, e.getTokenSequence().size());
+        }
     }
 
     private OWLClass cls(String name) {

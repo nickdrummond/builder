@@ -53,17 +53,17 @@ public class RemoveAxiomCommand implements Command {
             ax = context.getOWLAxiom();
         }
 
-        ax.ifPresent(a -> remove(a));
+        ax.ifPresent(a -> remove(a, context.getOntology()));
 
         return context;
     }
 
-    private void remove(OWLAxiom a) {
-        List<? extends OWLOntologyChange> changes = FinderUtils.getOntologiesContaining(a, helper.ont)
+    private void remove(OWLAxiom a, OWLOntology ont) {
+        List<? extends OWLOntologyChange> changes = FinderUtils.getOntologiesContaining(a, ont)
                 .peek(o -> System.out.println("Removing " + helper.render(a) + " from " + helper.render(o)))
                 .map(o -> new RemoveAxiom(o, a)).collect(Collectors.toList());
         helper.mngr.applyChanges(changes);
-}
+    }
 
     private UserInput replaceVars(UserInput input, Context currentContext) {
         List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());

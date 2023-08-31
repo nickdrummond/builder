@@ -60,7 +60,7 @@ public class NewInstanceCommand implements Command {
 //                return context;
 //            }
 
-            OWLOntology targetOntology = context.getOntology(helper);
+            OWLOntology targetOntology = context.getOntology();
 
             String seeAlso = null;
             if (params.size() == 3) {

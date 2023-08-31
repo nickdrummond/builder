@@ -1,8 +1,6 @@
 package com.nickd.util;
 
-import openllet.owlapi.OWLHelper;
 import org.semanticweb.owlapi.model.*;
-import org.semanticweb.owlapi.model.parameters.Imports;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -45,7 +43,7 @@ public class FinderUtils {
                 .map(OWLAnnotationAssertionAxiom::getSubject)
                 .map(OWLAnnotationObject::asIRI)
                 .flatMap(Optional::stream)
-                .map(helper::entityForIRI)
+                .flatMap(iri -> helper.entitiesForIRI(iri, helper.mngr.ontologies()))
                 .collect(Collectors.toList());
     }
 

@@ -34,7 +34,7 @@ public class ShowCommand implements Command {
 
         if (sel != null) {
             if (sel instanceof OWLEntity) {
-                List<OWLAxiom> axioms = ((OWLEntity)sel).accept(new DescriptionVisitorEx(context.getOntology(helper)));
+                List<OWLAxiom> axioms = ((OWLEntity)sel).accept(new DescriptionVisitorEx(context.getOntology()));
                 return new OWLObjectListContext("axioms", context, axioms);
             }
             else {

@@ -5,87 +5,86 @@ import org.semanticweb.owlapi.model.*;
 
 import javax.annotation.Nonnull;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class SuggestionContext implements Context {
+public class RootContext implements Context {
+    private final OWLOntology ont;
 
-    private Context delegate;
-    private OWLOntology suggestions;
-
-    public SuggestionContext(OWLOntology suggestions, Context delegate) {
-        this.suggestions = suggestions;
-        this.delegate = delegate;
+    public RootContext(OWLOntology ont) {
+        this.ont = ont;
     }
 
     @Override
     public List<? extends OWLObject> getSelectedObjects() {
-        return delegate.getSelectedObjects();
+        return Collections.emptyList();
     }
 
     @Override
     public Context getParent() {
-        return delegate.getParent();
+        return null;
     }
 
     @Override
     public List<Context> stack(int promptDepth) {
-        return delegate.stack(promptDepth);
+        return stack();
     }
 
     @Override
     public List<Context> stack() {
-        return delegate.stack();
+        return new ArrayList<>();
     }
 
-    @Override
     @Nonnull
+    @Override
     public String getName() {
-        return delegate.getName();
+        return "";
     }
 
     @Override
     public OWLObject getSelected() {
-        return delegate.getSelected();
+        return null;
     }
 
     @Override
     public void renderSelection(PrintStream out, Helper helper) {
-        delegate.renderSelection(out, helper);
+
     }
 
     @Override
     public boolean isSingleSelection() {
-        return delegate.isSingleSelection();
+        return true;
     }
 
     @Override
     public OWLOntology getOntology() {
-        return suggestions;
+        return ont;
     }
 
     @Override
     public Optional<OWLEntity> getOWLEntity() {
-        return delegate.getOWLEntity();
+        return Optional.empty();
     }
 
     @Override
     public Optional<OWLClass> getOWLClass() {
-        return delegate.getOWLClass();
+        return Optional.empty();
     }
 
     @Override
     public Optional<OWLAxiom> getOWLAxiom() {
-        return delegate.getOWLAxiom();
+        return Optional.empty();
     }
 
     @Override
     public boolean isRoot() {
-        return delegate.isRoot();
+        return true;
     }
 
     @Override
     public <T extends OWLObject> Optional<T> get(Class<T> c) {
-        return delegate.get(c);
+        return Optional.empty();
     }
 }

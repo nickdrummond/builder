@@ -50,13 +50,13 @@ public class BuilderController {
         commands = new HashMap<>();
         commands.put("find", new FindCommand(helper, defaultSearchLabel));
         commands.put("wiki", new WikiCommand(helper, defaultSearchLabel));
-        commands.put("accept", new AcceptCommand(helper));
+        commands.put("accept", new AcceptCommand(helper, defaultSearchLabel));
         commands.put("ont", new OntologiesCommand(helper));
         commands.put("ind", new IndividualsCommand(helper));
         commands.put("subs", new SubsCommand(helper));
         commands.put("new", new NewInstanceCommand(helper, defaultSearchLabel));
-        commands.put("add", new AddAxiomCommand(helper, defaultSearchLabel));
-        commands.put("remove", new RemoveAxiomCommand(helper, defaultSearchLabel));
+        commands.put("+", new AddAxiomCommand(helper, defaultSearchLabel));
+        commands.put("-", new RemoveAxiomCommand(helper, defaultSearchLabel));
         commands.put("move", new MoveAxiomCommand(helper, defaultSearchLabel));
         commands.put("show", new ShowCommand(helper));
         commands.put("<", new BackContextCommand(helper));
@@ -64,6 +64,7 @@ public class BuilderController {
         commands.put("history", new HistoryCommand(history));
         commands.put("undo", new UndoCommand(helper));
         commands.put("save", new SaveCommand(helper));
+        // TODO
         defaultCommand = new NotFoundCommand(commands);
     }
 
@@ -73,7 +74,7 @@ public class BuilderController {
 
         Scanner in = new Scanner(inputStream);
 
-        Context currentContext = new OntologyRootContext(helper.ont);
+        Context currentContext = new RootContext(helper.ont);
 
         boolean exit = false;
         while (!exit) {

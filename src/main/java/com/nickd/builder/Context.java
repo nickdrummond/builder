@@ -26,7 +26,7 @@ public interface Context {
 
     boolean isSingleSelection();
 
-    OWLOntology getOntology(Helper helper);
+    OWLOntology getOntology();
 
     Optional<OWLEntity> getOWLEntity();
 
