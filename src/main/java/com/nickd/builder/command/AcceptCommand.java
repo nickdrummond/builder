@@ -1,16 +1,22 @@
 package com.nickd.builder.command;
 
+import com.nickd.builder.Constants;
 import com.nickd.builder.Context;
 import com.nickd.builder.UserInput;
 import com.nickd.util.DescriptionVisitorEx;
 import com.nickd.util.Helper;
 import org.semanticweb.owlapi.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AcceptCommand implements Command {
+
+    Logger logger = LoggerFactory.getLogger(AcceptCommand.class);
+
     private final Helper helper;
     private final ParserCommon common;
 
@@ -37,15 +43,20 @@ public class AcceptCommand implements Command {
             sel = context.getSelected();
         }
 
-        if (sel != null) {
-            List<OWLAxiom> axioms = ((OWLEntity) sel).accept(new DescriptionVisitorEx(context.getOntology()));
-            final OWLOntology target = (sel instanceof OWLNamedIndividual) ? helper.ont("star-wars.owl.ttl") : helper.ont("base.owl.ttl");
-            helper.mngr.applyChanges(Stream.concat(
-                    axioms.stream().map(a -> new AddAxiom(target, a)),
-                    axioms.stream().map(a -> new RemoveAxiom(helper.suggestions, a))).collect(Collectors.toList()));
-            System.out.println("Copied " + axioms.size() + " axioms to " + helper.render(target));
-
+        if (sel != null && sel.isNamed()) {
+            final OWLOntology target = (sel instanceof OWLNamedIndividual) ?
+                    helper.ont(Constants.DEFAULT_INDIVIDUALS_ONT) :
+                    helper.ont(Constants.DEFAULT_CLASSES_ONT);
+            moveAxioms((OWLEntity)sel, helper.suggestions, target);
         }
         return context; // stay in current context
+    }
+
+    private void moveAxioms(OWLEntity sel, OWLOntology from, OWLOntology to) {
+        List<OWLAxiom> axioms = sel.accept(new DescriptionVisitorEx(from));
+        helper.mngr.applyChanges(Stream.concat(
+                axioms.stream().map(a -> new AddAxiom(to, a)),
+                axioms.stream().map(a -> new RemoveAxiom(from, a))).toList());
+        logger.info("Copied {} axioms to {}", axioms.size(), helper.render(to));
     }
 }

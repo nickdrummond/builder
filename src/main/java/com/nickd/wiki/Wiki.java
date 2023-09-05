@@ -100,4 +100,8 @@ public class Wiki {
     private static IRI getWikiUrl(String ref) {
         return IRI.create(BASE + ref);
     }
+
+    public static List<? extends OWLObject> suggestions() {
+        return null;
+    }
 }

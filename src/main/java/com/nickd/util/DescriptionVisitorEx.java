@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 public class DescriptionVisitorEx implements OWLEntityVisitorEx<List<OWLAxiom>> {
 
     private final Set<AxiomType<?>> indTypes = Set.of(
+            AxiomType.DECLARATION,
             AxiomType.CLASS_ASSERTION,
             AxiomType.OBJECT_PROPERTY_ASSERTION,
             AxiomType.NEGATIVE_OBJECT_PROPERTY_ASSERTION,
@@ -23,6 +24,7 @@ public class DescriptionVisitorEx implements OWLEntityVisitorEx<List<OWLAxiom>> 
             AxiomType.SAME_INDIVIDUAL,
             AxiomType.ANNOTATION_ASSERTION);
     private final Set<AxiomType<?>> clsTypes = Set.of(
+            AxiomType.DECLARATION,
             AxiomType.SUBCLASS_OF,
             AxiomType.EQUIVALENT_CLASSES,
             AxiomType.OBJECT_PROPERTY_DOMAIN,
@@ -30,6 +32,7 @@ public class DescriptionVisitorEx implements OWLEntityVisitorEx<List<OWLAxiom>> 
             AxiomType.ANNOTATION_ASSERTION);
 
     private final Set<AxiomType<?>> objPropTypes = Set.of(
+            AxiomType.DECLARATION,
             AxiomType.SUB_OBJECT_PROPERTY,
             AxiomType.EQUIVALENT_OBJECT_PROPERTIES,
             AxiomType.OBJECT_PROPERTY_DOMAIN,
@@ -46,6 +49,7 @@ public class DescriptionVisitorEx implements OWLEntityVisitorEx<List<OWLAxiom>> 
             AxiomType.ANNOTATION_ASSERTION);
 
     private final Set<AxiomType<?>> dataPropTypes = Set.of(
+            AxiomType.DECLARATION,
             AxiomType.SUB_DATA_PROPERTY,
             AxiomType.EQUIVALENT_DATA_PROPERTIES,
             AxiomType.DATA_PROPERTY_DOMAIN,
@@ -54,12 +58,14 @@ public class DescriptionVisitorEx implements OWLEntityVisitorEx<List<OWLAxiom>> 
             AxiomType.ANNOTATION_ASSERTION);
 
     private final Set<AxiomType<?>> annotPropTypes = Set.of(
+            AxiomType.DECLARATION,
             AxiomType.SUB_ANNOTATION_PROPERTY_OF,
             AxiomType.ANNOTATION_PROPERTY_DOMAIN,
             AxiomType.ANNOTATION_PROPERTY_RANGE,
             AxiomType.ANNOTATION_ASSERTION);
 
     private final Set<AxiomType<?>> dtTypes = Set.of(
+            AxiomType.DECLARATION,
             AxiomType.DATATYPE_DEFINITION,
             AxiomType.ANNOTATION_ASSERTION);
 

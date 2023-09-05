@@ -13,6 +13,11 @@ class IsSubjectOfAxiomVisitorEx implements OWLAxiomVisitorEx<Boolean> {
     }
 
     @Override
+    public Boolean visit(OWLDeclarationAxiom axiom) {
+        return axiom.getEntity().equals(entity);
+    }
+
+    @Override
     public Boolean visit(OWLSubClassOfAxiom axiom) {
         return axiom.getSubClass().equals(entity);
     }

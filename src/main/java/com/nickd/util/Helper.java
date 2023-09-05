@@ -19,6 +19,8 @@ import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 import org.semanticweb.owlapi.util.AnnotationValueShortFormProvider;
 import org.semanticweb.owlapi.util.BidirectionalShortFormProviderAdapter;
 import org.semanticweb.owlapi.util.ShortFormProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +32,8 @@ import java.util.stream.Stream;
 import static com.nickd.builder.Constants.BASE;
 
 public class Helper {
+
+    private final Logger logger = LoggerFactory.getLogger(Helper.class);
 
     public OWLAnnotationProperty getLabelAnnotationProp() {
         return defaultSearchLabel;
@@ -54,7 +58,7 @@ public class Helper {
     private final ManchesterOWLSyntaxClassExpressionParser mos;
     private final MOSAxiomTreeParser mosAxiom;
 
-    public final OWLOntology suggestions;
+    public OWLOntology suggestions;
 
     public long timeToLoad;
     public long timeToClassify;
@@ -96,13 +100,14 @@ public class Helper {
         mosAxiom = new MOSAxiomTreeParser(df, checker);
         told = new StructuralReasonerFactory().createNonBufferingReasoner(ont, new SimpleConfiguration());
 
-        try {
+        IRI suggestionsLoc = ontologyIRIMapper.getDocumentIRI(Constants.SUGGESTIONS_BASE);
+        logger.info("Loading suggestions from: {}", suggestionsLoc);
+        suggestions = mngr.loadOntology(suggestionsLoc);
+        if (suggestions == null) {
             suggestions = mngr.createOntology(IRI.create(BASE + "/suggestions.owl.ttl"));
             ont.getOntologyID().getOntologyIRI().ifPresent(iri ->
                     suggestions.applyChange(new AddImport(suggestions, df.getOWLImportsDeclaration(iri))));
             mngr.setOntologyFormat(suggestions, new TurtleDocumentFormat());
-        } catch (OWLOntologyCreationException e) {
-            throw new RuntimeException(e);
         }
 
         mngr.addOntologyChangeListener(list -> {
@@ -113,7 +118,7 @@ public class Helper {
             });
         });
 
-        System.out.println("Loaded in " + timeToLoad + "ms");
+        logger.info("Loaded in " + timeToLoad + "ms");
     }
 
     private static IRI makeIRI(String s) {

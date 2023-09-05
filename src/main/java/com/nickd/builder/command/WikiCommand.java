@@ -17,10 +17,9 @@ import java.util.stream.Collectors;
 import static com.nickd.wiki.Wiki.forString;
 
 /**
- * suggest https://starwars.fandom.com/wiki/Bix_Caleen
- * suggest Bix_Caleen (existing entity)
- * 1) Cassian_Andor
- * 2)
+ * wiki https://starwars.fandom.com/wiki/Bix_Caleen
+ * wiki Bix_Caleen (existing entity)
+
  */
 
 public class WikiCommand implements Command {
@@ -57,14 +56,6 @@ public class WikiCommand implements Command {
                 WikiPage wikiPage = forString(refUrl, helper);
 
                 System.out.println(wikiPage.getIri());
-
-                if (params.size() == 2) {
-                    String query = params.get(1);
-                    if (query.equals("suggest")) {
-                        return new SuggestionContext(helper.suggestions, new OWLObjectListContext(refUrl, context, wikiPage.getUnknown()));
-                    }
-                }
-                return new OWLObjectListContext(refUrl, context, wikiPage.getKnown());
             } catch (IOException e) {
                 logger.warn("Cannot find Wookieepedia for ${}", refUrl);
             }

@@ -50,6 +50,7 @@ public class BuilderController {
         commands = new HashMap<>();
         commands.put("find", new FindCommand(helper, defaultSearchLabel));
         commands.put("wiki", new WikiCommand(helper, defaultSearchLabel));
+        commands.put("suggest", new SuggestCommand(helper));
         commands.put("accept", new AcceptCommand(helper, defaultSearchLabel));
         commands.put("ont", new OntologiesCommand(helper));
         commands.put("ind", new IndividualsCommand(helper));

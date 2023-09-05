@@ -19,6 +19,7 @@ Purely an experiment in navigating/building ontologies in a command line interfa
 
 ## TODO
 
+* 
 * Complete parser for all axiom types
 * Axiom show - order referenced entities in MOS order (if possible)
 * ont (searchterm)
