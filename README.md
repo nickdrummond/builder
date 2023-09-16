@@ -27,6 +27,10 @@ Purely an experiment in navigating/building ontologies in a command line interfa
 * 
 
 ## Bugs
+### 3… > Bix_Caleen > find Caleen > Caleen_Salyard >> + &0 Type Salvage
+Stackoverflow
+This is because Salvage_yard is in suggestions
+
 ### Accidentally give the wrong placeholder:
     2… > Ferrix > Ferrix (112) > Free_Trade_sector >> new Sector &1 https://starwars.fandom.com/wiki/Free_Trade_sector
     3… > Ferrix (112) > Free_Trade_sector > ontologies#&1 >> show

@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.StringWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -101,9 +103,12 @@ public class Helper {
         told = new StructuralReasonerFactory().createNonBufferingReasoner(ont, new SimpleConfiguration());
 
         IRI suggestionsLoc = ontologyIRIMapper.getDocumentIRI(Constants.SUGGESTIONS_BASE);
-        logger.info("Loading suggestions from: {}", suggestionsLoc);
-        suggestions = mngr.loadOntology(suggestionsLoc);
-        if (suggestions == null) {
+        try {
+            suggestions = mngr.loadOntology(suggestionsLoc);
+            logger.info("Loaded suggestions from: {}", suggestionsLoc);
+        }
+        catch (OWLOntologyCreationException e) {
+            logger.info("No suggestions at {}. Creating new suggestions ontology", suggestionsLoc);
             suggestions = mngr.createOntology(IRI.create(BASE + "/suggestions.owl.ttl"));
             ont.getOntologyID().getOntologyIRI().ifPresent(iri ->
                     suggestions.applyChange(new AddImport(suggestions, df.getOWLImportsDeclaration(iri))));
@@ -122,6 +127,9 @@ public class Helper {
     }
 
     private static IRI makeIRI(String s) {
+        if (!s.contains("%")) { // if not already encoded
+            s = URLEncoder.encode(s, StandardCharsets.UTF_8);
+        }
         return IRI.create(BASE + "#" + s);
     }
 
