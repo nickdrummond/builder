@@ -7,12 +7,17 @@ import com.nickd.wiki.Wiki;
 import com.nickd.wiki.WikiPage;
 import org.jsoup.select.Elements;
 import org.semanticweb.owlapi.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class IndividualCreator implements Creator<OWLNamedIndividual> {
+
+    private Logger logger = LoggerFactory.getLogger(IndividualCreator.class);
+
     private String parentSelector;
     private final String selector;
     private String subjectSelector;
@@ -70,15 +75,20 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
         List<OWLOntologyChange> changes = new ArrayList<>();
         parents.forEach(parent -> {
             Elements object = parent.select(selector);
-            String objectStr = object.get(0).attr("href");
-            OWLNamedIndividual objectInd = indForHref(objectStr, wikiPage);
+            if (object.isEmpty()) {
+                logger.error("Empty " + selector + " from " + parent);
+            }
+            else {
+                String objectStr = object.get(0).attr("href");
+                OWLNamedIndividual objectInd = indForHref(objectStr, wikiPage);
 
-            Elements subjects = parent.select(subjectSelector);
-            subjects.forEach(sub -> {
-                String subjectStr = sub.attr("href");
-                OWLNamedIndividual subjectInd = indForHref(subjectStr, wikiPage);
-                changes.add(new AddAxiom(helper.suggestions, helper.df.getOWLObjectPropertyAssertionAxiom(rel, subjectInd, objectInd)));
-            });
+                Elements subjects = parent.select(subjectSelector);
+                subjects.forEach(sub -> {
+                    String subjectStr = sub.attr("href");
+                    OWLNamedIndividual subjectInd = indForHref(subjectStr, wikiPage);
+                    changes.add(new AddAxiom(helper.suggestions, helper.df.getOWLObjectPropertyAssertionAxiom(rel, subjectInd, objectInd)));
+                });
+            }
         });
         helper.mngr.applyChanges(changes);
     }

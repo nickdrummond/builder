@@ -56,6 +56,7 @@ public class BuilderController {
         commands.put("ind", new IndividualsCommand(helper));
         commands.put("subs", new SubsCommand(helper));
         commands.put("new", new NewInstanceCommand(helper, defaultSearchLabel));
+        commands.put("sub", new NewClassCommand(helper, defaultSearchLabel));
         commands.put("+", new AddAxiomCommand(helper, defaultSearchLabel));
         commands.put("-", new RemoveAxiomCommand(helper, defaultSearchLabel));
         commands.put("move", new MoveAxiomCommand(helper, defaultSearchLabel));

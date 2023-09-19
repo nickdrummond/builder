@@ -1,7 +1,6 @@
 package com.nickd.builder.command;
 
 import com.nickd.builder.Context;
-import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
 import com.nickd.util.Helper;
 import com.nickd.util.MyStringUtils;
@@ -43,6 +42,7 @@ public class AddAxiomCommand implements Command {
         OWLOntology targetOntology = context.getOntology();
 
         try {
+            logger.warn("parse = {}", param);
             OWLAxiom ax = helper.mosAxiom(param);
 
             List<OWLOntologyChange> changes = new ArrayList<>();
@@ -54,7 +54,6 @@ public class AddAxiomCommand implements Command {
 
         }
         catch (ParserException e) {
-            logger.debug(e.getMessage());
             Context placeHolder = common.createPlaceholderContext(input.fullText(), e, context);
             if (placeHolder.isSingleSelection()) { //exact match
                 return handle(new UserInput(placeHolder.getName()), context); // try to parse again
