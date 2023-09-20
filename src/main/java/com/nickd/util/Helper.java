@@ -55,7 +55,7 @@ public class Helper {
     public OWLReasoner told;
 
     private final ShortFormProvider sfp;
-    private final BidirectionalShortFormProviderAdapter nameCache;
+    public final BidirectionalShortFormProviderAdapter nameCache;
     private final ShortFormEntityChecker checker;
     private final ManchesterOWLSyntaxClassExpressionParser mos;
     private final MOSAxiomTreeParser mosAxiom;
@@ -91,39 +91,48 @@ public class Helper {
         ont = loadsOntology.apply(mngr);
         timeToLoad = System.currentTimeMillis() - start;
 
+        suggestions = loadOrCreateSuggestions(ontologyIRIMapper);
+
         df = mngr.getOWLDataFactory();
 
         defaultSearchLabel = annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
-        sfp = new AnnotationValueShortFormProvider(List.of(defaultSearchLabel), Collections.emptyMap(), mngr); // TODO should use the given annotation prop (EDITOR_LABEL)
+        // TODO should use the given annotation prop (EDITOR_LABEL)
+        sfp = new AnnotationValueShortFormProvider(List.of(defaultSearchLabel), Collections.emptyMap(), mngr);
         nameCache = new BidirectionalShortFormProviderAdapter(sfp);
-        ont.getSignature(Imports.INCLUDED).forEach(nameCache::add);
+        suggestions.getSignature(Imports.INCLUDED).forEach(nameCache::add);
         checker = new ShortFormEntityChecker(nameCache);
         mos = new ManchesterOWLSyntaxClassExpressionParser(df, checker);
         mosAxiom = new MOSAxiomTreeParser(df, checker);
+
         told = new StructuralReasonerFactory().createNonBufferingReasoner(ont, new SimpleConfiguration());
 
+        mngr.addOntologyChangeListener(changes ->
+            changes.stream().map(OWLOntologyChange::getOntology).distinct().forEach( o -> {
+                changedOntologies.add(o); // mark the ontologies as written to
+                o.signature().forEach(nameCache::add); // update the name caches
+                // TODO should really also deal with deletes
+            })
+            // TODO kill reasoners
+        );
+
+        logger.info("Loaded in " + timeToLoad + "ms");
+    }
+
+    private OWLOntology loadOrCreateSuggestions(OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
         IRI suggestionsLoc = ontologyIRIMapper.getDocumentIRI(Constants.SUGGESTIONS_BASE);
         try {
-            suggestions = mngr.loadOntology(suggestionsLoc);
+            final OWLOntology o = mngr.loadOntology(suggestionsLoc);
             logger.info("Loaded suggestions from: {}", suggestionsLoc);
+            return o;
         }
         catch (OWLOntologyCreationException e) {
             logger.info("No suggestions at {}. Creating new suggestions ontology", suggestionsLoc);
-            suggestions = mngr.createOntology(IRI.create(BASE + "/suggestions.owl.ttl"));
+            final OWLOntology o = mngr.createOntology(IRI.create(BASE + "/suggestions.owl.ttl"));
             ont.getOntologyID().getOntologyIRI().ifPresent(iri ->
-                    suggestions.applyChange(new AddImport(suggestions, df.getOWLImportsDeclaration(iri))));
-            mngr.setOntologyFormat(suggestions, new TurtleDocumentFormat());
+                    o.applyChange(new AddImport(o, df.getOWLImportsDeclaration(iri))));
+            mngr.setOntologyFormat(o, new TurtleDocumentFormat());
+            return o;
         }
-
-        mngr.addOntologyChangeListener(list -> {
-            list.forEach(c -> {
-                changedOntologies.add(c.getOntology()); // mark the ontologies as written to
-                c.signature().forEach(nameCache::add); // update the name caches
-                // TODO kill reasoners
-            });
-        });
-
-        logger.info("Loaded in " + timeToLoad + "ms");
     }
 
     private static IRI makeIRI(String s) {
