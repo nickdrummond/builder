@@ -7,6 +7,7 @@ import com.nickd.util.Helper;
 import com.nickd.util.MyStringUtils;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.parameters.Imports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,7 @@ public class AddAxiomCommand implements Command {
     }
 
     private boolean isSuggestion(OWLEntity owlEntity) {
-        return helper.suggestions.containsEntityInSignature(owlEntity.getIRI());
+        return !helper.ont.containsEntityInSignature(owlEntity.getIRI(), Imports.INCLUDED);
     }
 
     private UserInput replaceVars(UserInput input, Context currentContext) {

@@ -48,24 +48,6 @@ It's when there are brackets!!
 
 ## Thoughts
 
-### Accept &all
-Could we have an &all which applies to every element in the context?
-
-suggestions >> 146
-suggestions > Luthen_Rael >> + &0 Type (Jungle and Jacket)
-[main] WARN com.nickd.builder.command.AddAxiomCommand - parse = Luthen_Rael Type (Jungle and Jacket)
-You should probably accept the following suggestions:
-0) Jacket
-1) Jungle
-2) Luthen_Rael
-suggestions > Luthen_Rael > To Accept >> accept &2
-suggestions > Luthen_Rael > To Accept >> [main] INFO com.nickd.builder.command.AcceptCommand - Copied 7 axioms to star-wars.owl.ttl
-accept &0
-[main] INFO com.nickd.builder.command.AcceptCommand - Copied 6 axioms to base.owl.ttl
-suggestions > Luthen_Rael > To Accept >> accept &1
-suggestions > Luthen_Rael > To Accept >> [main] INFO com.nickd.builder.command.AcceptCommand - Copied 6 axioms to base.owl.ttl
-
-
 ### Autocompletion
        >> add Han_S lov Leia
        0) Birth_of_Han_Solo

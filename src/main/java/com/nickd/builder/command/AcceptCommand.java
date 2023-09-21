@@ -9,8 +9,9 @@ import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class AcceptCommand implements Command {
@@ -31,32 +32,36 @@ public class AcceptCommand implements Command {
     }
 
     public Context handle(UserInput input, Context context) {
-        OWLObject sel = null;
+        Set<OWLObject> sel = new HashSet<>();
         if (!input.params().isEmpty()) { // this should be &1 and we get the axiom directly from the context
             String param = input.params().get(0);
             if (param.startsWith("&")) {
-                sel = context.getSelectedObjects().get(Integer.parseInt(param.substring(1)));
-            } else {
-                sel = helper.mos(param);
+                sel.add(context.getSelectedObjects().get(Integer.parseInt(param.substring(1))));
+            } else if (param.equals("all")) {
+                sel.addAll(context.getSelectedObjects());
+            }
+            else {
+                sel.add(helper.mos(param));
             }
         } else if (context.isSingleSelection()) {
-            sel = context.getSelected();
+            sel.add(context.getSelected());
         }
 
-        if (sel != null && sel.isNamed()) {
-            final OWLOntology target = (sel instanceof OWLNamedIndividual) ?
+        List<OWLAxiomChange> changes = sel.stream().filter(OWLObject::isNamed).flatMap(entity -> {
+            final OWLOntology target = (entity instanceof OWLNamedIndividual) ?
                     helper.ont(Constants.DEFAULT_INDIVIDUALS_ONT) :
                     helper.ont(Constants.DEFAULT_CLASSES_ONT);
-            moveAxioms((OWLEntity)sel, helper.suggestions, target);
-        }
+            return getChanges((OWLEntity) entity, helper.suggestions, target);
+        }).toList();
+        helper.mngr.applyChanges(changes);
+        logger.info("Moved {} axioms", changes.size()/2);
         return context; // stay in current context
     }
 
-    private void moveAxioms(OWLEntity sel, OWLOntology from, OWLOntology to) {
+    private Stream<OWLAxiomChange> getChanges(OWLEntity sel, OWLOntology from, OWLOntology to) {
         List<OWLAxiom> axioms = sel.accept(new DescriptionVisitorEx(from));
-        helper.mngr.applyChanges(Stream.concat(
+        return Stream.concat(
                 axioms.stream().map(a -> new AddAxiom(to, a)),
-                axioms.stream().map(a -> new RemoveAxiom(from, a))).toList());
-        logger.info("Copied {} axioms to {}", axioms.size(), helper.render(to));
+                axioms.stream().map(a -> new RemoveAxiom(from, a)));
     }
 }
