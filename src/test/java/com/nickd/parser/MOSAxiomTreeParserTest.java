@@ -64,7 +64,7 @@ public class MOSAxiomTreeParserTest {
     @Test
     public void testDataPropertyAssertion() {
         OWLAxiom expected = df.getOWLDataPropertyAssertionAxiom(dataP("p"), ind("a"), lit("value"));
-        assertEquals(expected, parser.parse("a p value"));
+        assertEquals(expected, parser.parse("a p \"value\""));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class MOSAxiomTreeParserTest {
     @Test
     public void testNegativeDataPropertyAssertion() {
         OWLAxiom expected = df.getOWLNegativeDataPropertyAssertionAxiom(dataP("p"), ind("a"), lit("value"));
-        assertEquals(expected, parser.parse("not (a p value)"));
+        assertEquals(expected, parser.parse("not (a p \"value\")"));
     }
 
     @Test
@@ -100,13 +100,13 @@ public class MOSAxiomTreeParserTest {
         try {
             ind("anindividual");
             objP("prop");
-            parser.parse("anindividual prop d");
+            parser.parse("anindividual prop droo");
             fail("Expected exception not thrown");
         }
         catch (ParserException e) {
             System.out.println("e.getMessage() = " + e.getMessage());
             assertTrue(e.isIndividualNameExpected());
-            assertEquals(19, e.getStartPos());
+            assertEquals(18, e.getStartPos());
         }
     }
 
@@ -114,7 +114,7 @@ public class MOSAxiomTreeParserTest {
     public void missingClassInClassAssertionAxiom() {
         try {
             ind("anindividual");
-            parser.parse("anindividual Type d");
+            parser.parse("anindividual Type droo");
             fail("Expected exception not thrown");
         }
         catch (ParserException e) {
@@ -141,9 +141,10 @@ public class MOSAxiomTreeParserTest {
             parser.parse("one Type boo some (AClass");
         }
         catch (ParserException e) {
+            System.out.println("e = " + e);
             assertThat(e.getExpectedKeywords(), CoreMatchers.hasItem(")"));
-            assertEquals(24, e.getColumnNumber());
-            assertEquals("AClass", e.getCurrentToken());
+            assertEquals(26, e.getColumnNumber());
+            assertEquals("|EOF|", e.getCurrentToken());
             assertEquals(6, e.getTokenSequence().size());
         }
     }

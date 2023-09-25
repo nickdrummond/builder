@@ -23,13 +23,13 @@ public class QuotedStringMatcher extends AbstractParseMatcher<String> {
     }
 
     public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+        int pointer = tokenizer.getPointer();
         String s = tokenizer.consumeNext();
         if (s.startsWith("\"") && s.endsWith("\"")) {
             this.value = MyStringUtils.stripQuotes(s);
         }
         else {
-            int pointer = tokenizer.getPointer();
-            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer, false, false, false, false, false, false, false,false, Collections.emptySet());
+            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer+1, false, false, false, false, false, false, false,false, Collections.emptySet());
         }
     }
 }

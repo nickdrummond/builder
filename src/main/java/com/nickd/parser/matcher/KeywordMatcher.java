@@ -27,9 +27,9 @@ public class KeywordMatcher extends AbstractParseMatcher<String> {
 
     @Override
     public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+        int pointer = tokenizer.getPointer();
         if (!tokenizer.consumeNext().equalsIgnoreCase(syntax)) {
-            int pointer = tokenizer.getPointer();
-            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer, false, false, false, false, false, false, false, false, Set.of(syntax));
+            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer+1, false, false, false, false, false, false, false, false, Set.of(syntax));
         }
     }
 }

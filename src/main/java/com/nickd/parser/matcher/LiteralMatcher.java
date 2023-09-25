@@ -28,6 +28,7 @@ public class LiteralMatcher extends AbstractParseMatcher<OWLLiteral> {
 
     @Override
     public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+        int pointer = tokenizer.getPointer();
         String s = tokenizer.consumeNext();
 
         if (s.startsWith("\"") && s.endsWith("\"")) {
@@ -41,14 +42,14 @@ public class LiteralMatcher extends AbstractParseMatcher<OWLLiteral> {
             }
 
             if (tokenizer.remainder().startsWith(DT_MARKER)) { // typed literal
+                pointer = tokenizer.getPointer() + DT_MARKER.length();
                 String datatypeS = tokenizer.consumeNext().substring(DT_MARKER.length());
                 OWLDatatype dt = checker.getOWLDatatype(datatypeS);
                 if (dt != null) {
                     this.lit = df.getOWLLiteral(value, dt);
                     return;
                 }
-                int pointer = tokenizer.getPointer() + DT_MARKER.length();
-                throw new ParserException(tokenizer.tokens(), pointer, 0, pointer, false, false, false, false, false, true, false, false, Collections.emptySet());
+                throw new ParserException(tokenizer.tokens(), pointer, 0, pointer+1, false, false, false, false, false, true, false, false, Collections.emptySet());
             }
 
             this.lit = df.getOWLLiteral(value);
@@ -85,7 +86,6 @@ public class LiteralMatcher extends AbstractParseMatcher<OWLLiteral> {
             // not a double
         }
 
-        int pointer = tokenizer.getPointer();
-        throw new ParserException(tokenizer.tokens(), pointer, 0, pointer, false, false, false, false, false, false, false, false, Collections.emptySet());
+        throw new ParserException(tokenizer.tokens(), pointer, 0, pointer+1, false, false, false, false, false, false, false, false, Collections.emptySet());
     }
 }

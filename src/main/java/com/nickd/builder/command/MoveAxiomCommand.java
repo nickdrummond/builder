@@ -47,7 +47,7 @@ public class MoveAxiomCommand implements Command {
                 ax = Optional.of(helper.mosAxiom(param));
             } catch (ParserException e) {
                 logger.error("Cannot find axiom", e);
-                return common.createPlaceholderContext(input.fullText(), e, context);
+                return common.createPlaceholderContext(input, e, context);
             }
         }
         if (ax.isEmpty()) {

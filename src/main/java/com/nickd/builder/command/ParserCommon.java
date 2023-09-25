@@ -29,21 +29,36 @@ public class ParserCommon {
         this.defaultSearchLabel = defaultSearchLabel;
     }
 
-    Context createPlaceholderContext(String commandStr, ParserException e, Context context) {
+    Context createPlaceholderContext(UserInput input, ParserException e, Context context) {
         String token = e.getCurrentToken();
         List<OWLEntity> entities = getExpectedType(e);
-        String remains = commandStr.substring(e.getStartPos()-1);
-        String s = commandStr.substring(0, e.getStartPos()-1);
+        String remains = input.paramsAsString().substring(e.getStartPos());
+        String s = input.paramsAsString().substring(0, e.getStartPos());
         if (entities.size() > 1) {
-            s += remains.replace(token, "?" + token + "?");
+            if (remains.isEmpty()) {
+                s += " ??";
+            }
+            else {
+                s += remains.replace(token, "?" + token + "?");
+            }
         }
         else if (entities.size() == 1) {
-            s += remains.replace(token, helper.render(entities.get(0)));
+            if (remains.isEmpty()) {
+                s += " " + helper.render(entities.get(0));
+            }
+            else {
+                s += remains.replace(token, helper.render(entities.get(0)));
+            }
         }
         else {
-            s += remains.replace(token, "??");
+            if (remains.isEmpty()) {
+                s += " ??";
+            }
+            else {
+                s += remains.replace(token, "??");
+            }
         }
-        return new OWLObjectListContext(s, context, entities);
+        return new OWLObjectListContext(input.command() + " " + s, context, entities);
     }
 
     // TODO should parse the input at the ? and restrict the autocomplete to the correct type/keyword

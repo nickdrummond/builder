@@ -25,10 +25,10 @@ public class DataPropMatcher extends AbstractParseMatcher<OWLDataProperty> {
 
     @Override
     public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+        int pointer = tokenizer.getPointer()+1;
         OWLDataProperty prop = checker.getOWLDataProperty(tokenizer.consumeNext());
         if (prop == null) {
-            int pointer = tokenizer.getPointer();
-            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer, false, false, false, true, false, false, false, false, Collections.emptySet());
+            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer+1, false, false, false, true, false, false, false, false, Collections.emptySet());
         }
         this.prop = prop;
     }

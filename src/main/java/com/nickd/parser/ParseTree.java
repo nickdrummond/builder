@@ -247,7 +247,7 @@ public class ParseTree implements OWLObjectProvider {
 
     private List<ParserException> getBestFails(List<ParserException> fails) {
         int maxFailDepth = maxDepth(fails);
-        return fails.stream().filter(f -> f.getTokenSequence().size() >= maxFailDepth).collect(Collectors.toList());
+        return fails.stream().filter(f -> f.getStartPos() >= maxFailDepth).toList();
     }
 
     private ParserException merge(List<ParserException> fails) {
@@ -290,7 +290,8 @@ public class ParseTree implements OWLObjectProvider {
     private int maxDepth(List<ParserException> fails) {
         int max = 0;
         for (ParserException f : fails) {
-            int size = f.getTokenSequence().size();
+            // if we use the tokenSequence this will not work for axioms with Class Expressions
+            int size = f.getStartPos();
             if (size > max) {
                 max = size;
             }

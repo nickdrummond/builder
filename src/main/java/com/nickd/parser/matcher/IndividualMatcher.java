@@ -25,11 +25,10 @@ public class IndividualMatcher extends AbstractParseMatcher<OWLNamedIndividual> 
 
     @Override
     public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+        int pointer = tokenizer.getPointer();
         OWLNamedIndividual ind = checker.getOWLIndividual(tokenizer.consumeNext());
         if (ind == null) {
-            int pointer = tokenizer.getPointer();
-
-            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer, false, false, false, false, true, false, false, false, Collections.emptySet());
+            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer+1, false, false, false, false, true, false, false, false, Collections.emptySet());
         }
         this.ind = ind;
     }

@@ -24,10 +24,10 @@ public class ObjPropMatcher extends AbstractParseMatcher<OWLObjectProperty> {
 
     @Override
     public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+        int pointer = tokenizer.getPointer();
         OWLObjectProperty prop = checker.getOWLObjectProperty(tokenizer.consumeNext());
         if (prop == null) {
-            int pointer = tokenizer.getPointer();
-            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer, false, false, true, false, false, false, false, false, Collections.emptySet());
+            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer+1, false, false, true, false, false, false, false, false, Collections.emptySet());
         }
         this.prop = prop;
     }

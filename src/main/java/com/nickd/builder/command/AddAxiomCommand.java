@@ -67,8 +67,14 @@ public class AddAxiomCommand implements Command {
             }
         }
         catch (ParserException e) {
-            Context placeHolder = common.createPlaceholderContext(input.fullText(), e, context);
+            System.err.println(e.getMessage());
+            Context placeHolder = common.createPlaceholderContext(input, e, context);
             if (placeHolder.isSingleSelection()) { //exact match
+                if (input.fullText().equals(placeHolder.getName())) {
+                    System.err.println("Loop detected: " + input.fullText());
+                    System.out.println("Match: " + placeHolder.getSelected());
+                    return placeHolder;
+                }
                 return handle(new UserInput(placeHolder.getName()), context); // try to parse again
             }
             else {

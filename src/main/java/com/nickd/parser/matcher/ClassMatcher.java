@@ -24,10 +24,10 @@ public class ClassMatcher extends AbstractParseMatcher<OWLClass> {
 
     @Override
     public void check(MyTokenizer tokenizer, OWLEntityChecker checker, OWLDataFactory df) throws ParserException {
+        int pointer = tokenizer.getPointer();
         OWLClass cls = checker.getOWLClass(tokenizer.consumeNext());
         if (cls == null) {
-            int pointer = tokenizer.getPointer();
-            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer, false, true, false, false, false, false, false, false, Collections.emptySet());
+            throw new ParserException(tokenizer.tokens(), pointer, 0, pointer+1, false, true, false, false, false, false, false, false, Collections.emptySet());
         }
         this.cls = cls;
     }

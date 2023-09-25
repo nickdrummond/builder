@@ -29,22 +29,42 @@ mvn clean package
 * Axiom show - order referenced entities in MOS order (if possible)
 * ont (searchterm)
 * detect file changes and allow reload
-* 
+* keep a history of edited entities (subjects)
+* persist history
+* Keyword suggestions on add axiom - see below
 
 ## Bugs
+
+### Need some way to progress when expression incomplete and expecting a keyword
+      >> find Verlo
+     Verlo_Skiff >> + &0 Type hadRole some (Guard and inOr
+     [main] WARN com.nickd.builder.command.AddAxiomCommand - parse = Verlo_Skiff Type hadRole some (Guard and inOr
+     Encountered inOr at line 1 column 42. Expected one of:
+     Class name
+     Object property name
+     Data property name
+     inverse
+     not
+     (
+     {
+     Self
+     
+     [main] WARN com.nickd.builder.command.AddAxiomCommand - parse = Verlo_Skiff Type hadRole some (Guard and inOrganisation
+     Encountered |EOF| at line 1 column 56. Expected one of:
+     some
+     min
+     max
+     only
+     Self
+     exactly
+     value
+     
+     Verlo_Skiff > + Verlo_Skiff Type hadRole some (Guard and inOrganisation >>
 
 ### Accidentally give the wrong placeholder:
     2… > Ferrix > Ferrix (112) > Free_Trade_sector >> new Sector &1 https://starwars.fandom.com/wiki/Free_Trade_sector
     3… > Ferrix (112) > Free_Trade_sector > ontologies#&1 >> show
     0) ontologies#&1 Type Sector...
-### Cannot markup parse error for Type Axiom if incomplete (works if parses)
-	8) Jedi_Temple_Guard
-	9) Guard
-     find Pre > Verlo_Skiff > find Gua >> <
-     find Pre > Verlo_Skiff >> + &0 Type hadRole some (Guard and inOr
-     find Pre > Verlo_Skiff > + Verlo_Skiff ?? hadRole some (Guard and inOrganisation >>
-
-It's when there are brackets!!
 
 ## Thoughts
 
@@ -81,21 +101,6 @@ It's when there are brackets!!
 Can't use autocomplete unless its for final symbol as it either needs to be c+p to edit or automatically
 runs again which causes problems:
 
-    ont
-    0
-    find Planet
-    new &0 Ferrix https://starwars.fandom.com/wiki/Ferrix
-    wiki &0 suggest
-    new System &2
-    <
-    new &0 Kenari https://starwars.fandom.com/wiki/Kenari
-    wiki &0 suggest
-    <
-    add &0 hasT?
-    0
-    %(@£$%($£%£%$) 
-    add &0 Type hasTerrain some Forest // did nothing
-    save
 
 
 ### New from suggestion

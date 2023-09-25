@@ -6,6 +6,7 @@ import com.nickd.builder.UserInput;
 import com.nickd.util.Helper;
 import org.junit.Before;
 import org.junit.Test;
+import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class AddAxiomCommandTest {
 
@@ -27,6 +29,78 @@ public class AddAxiomCommandTest {
         rdfsLabel = helper.df.getRDFSLabel();
         command = new AddAxiomCommand(helper, rdfsLabel);
         rootContext = new RootContext(helper.ont);
+    }
+
+    @Test
+    public void whatDoesTheExpressionParserDo() {
+        prop("prop");
+        cls("Chewbacca");
+        String expression = "prop some Chew";
+
+        try {
+            helper.mos(expression);
+            fail();
+        }
+        catch(ParserException e) {
+            // Start pos is the beginning of the token
+            assertEquals(expression.indexOf("Chew"), e.getStartPos());
+            // And column number is the same, starting 1
+            assertEquals(expression.indexOf("Chew")+1, e.getColumnNumber());
+        }
+    }
+
+    @Test
+    public void whatDoesTheAxiomParserDo() {
+        ind("Chewbacca");
+        cls("Wookie");
+        String axiom = "Chewbacca Type Wook";
+
+        try {
+            helper.mosAxiom(axiom);
+            fail();
+        }
+        catch(ParserException e) {
+            // Start pos is the beginning of the token
+            assertEquals(axiom.indexOf("Wook"), e.getStartPos());
+            // And column number is the same, starting 1
+            assertEquals(axiom.indexOf("Wook")+1, e.getColumnNumber());
+        }
+    }
+
+    @Test
+    public void whatDoesTheAxiomParserDoAgain() {
+        ind("monkey");
+        prop("hasThe");
+        ind("twelve");
+
+        String axiom = "monkey hasThe twe";
+        try {
+            helper.mosAxiom(axiom);
+            fail();
+        } catch (ParserException e) {
+            // Start pos is the beginning of the token
+            assertEquals(axiom.indexOf("tw"), e.getStartPos());
+            // And column number is the same, starting 1
+            assertEquals(axiom.indexOf("tw") + 1, e.getColumnNumber());
+        }
+    }
+
+    @Test
+    public void whatDoesTheCombinationDo() {
+        ind("Chewbacca");
+        prop("hadRole");
+        cls("Trader");
+        String axiom = "Chewbacca Type (hadRole some Tra";
+
+        try {
+            helper.mosAxiom(axiom);
+        }
+        catch(ParserException e) {
+            // Start pos is the beginning of the token
+            assertEquals(axiom.indexOf("Tra"), e.getStartPos());
+            // And column number is the same, starting 1
+            assertEquals(axiom.indexOf("Tra")+1, e.getColumnNumber());
+        }
     }
 
     @Test
@@ -56,15 +130,11 @@ public class AddAxiomCommandTest {
     @Test
     public void createsAPromptForTypeWithBrackets() {
         ind("one");
-        OWLObjectProperty boo = prop("boo");
-        OWLObjectProperty property = prop("property");
-        OWLObjectProperty property2 = prop("property2");
-        OWLClass aClass = cls("AClass");
-        OWLClass aClassAgain = cls("AClassAgain");
+        prop("boo");
+        cls("AClass");
 
         Context result = command.handle(new UserInput("+ one Type boo some (AClass"), rootContext);
-        assertEquals("+ one Type boo some (AClass", result.getName());
-        assertThat(new ArrayList<>(result.getSelectedObjects()), hasItems(property, property2));
+        assertEquals("+ one Type boo some (AClass ??", result.getName());
     }
 
     @Test
@@ -86,9 +156,31 @@ public class AddAxiomCommandTest {
         OWLClass alien = helper.cls("Alien");
         ent("Alien", alien, helper.suggestions);
 
-        Context result = command.handle(new UserInput("+ Chewbacca Type Alien"), rootContext);
-        System.out.println("result = " + result);
-        assertEquals("Chewbacca Type Alien", result.getName());
+        Context result = command.handle(new UserInput("+ Chewbacca Type Ali"), rootContext);
+        assertEquals(rootContext, result);
+    }
+
+    @Test
+    public void doesNotStackOverflowWhen() {
+        OWLNamedIndividual chewie = ind("Chewbacca");
+        prop("hadRole");
+        OWLNamedIndividual soloBff = ind("SoloBFF");
+
+        Context result = command.handle(new UserInput("+ Chewbacca hadR"), rootContext);
+        assertEquals("+ Chewbacca hadRole ??", result.getName());
+        assertThat(new ArrayList<>(result.getSelectedObjects()), hasItems(chewie, soloBff));
+    }
+
+
+    @Test
+    public void doesNotStackOverflowWhenNoHints() {
+        OWLNamedIndividual chewie = ind("Chewbacca");
+        prop("hadRole");
+        OWLNamedIndividual soloBff = ind("SoloBFF");
+
+        Context result = command.handle(new UserInput("+ Chewbacca hadRole"), rootContext);
+        assertEquals("+ Chewbacca hadRole ??", result.getName());
+        assertThat(new ArrayList<>(result.getSelectedObjects()), hasItems(chewie, soloBff));
     }
 
     private OWLObjectProperty prop(String name) {
