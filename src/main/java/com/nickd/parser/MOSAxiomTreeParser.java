@@ -3,12 +3,17 @@ package com.nickd.parser;
 import org.semanticweb.owlapi.expression.OWLEntityChecker;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.nickd.parser.ParseTree.branch;
 import static org.semanticweb.owlapi.manchestersyntax.parser.ManchesterOWLSyntax.*;
 
 public class MOSAxiomTreeParser {
 
+    private static final int MAX_LEN_CHAIN = 10; // We don't want infinite chain parse tree
     private final OWLDataFactory df;
     private final OWLEntityChecker checker;
 
@@ -28,6 +33,7 @@ public class MOSAxiomTreeParser {
                         classAxiom(),
                         annotationPropertyAxiom(),
                         objectPropertyAxiom(),
+                        objectPropertyChainAxiom(0),
                         dataPropertyAxiom()
                 );
         return builder.getAxiom();
@@ -108,8 +114,9 @@ public class MOSAxiomTreeParser {
                 );
     }
 
+    // TODO class axioms where first class is expression
     private ParseTree classAxiom() {
-        return branch() // Class axioms
+        return branch() // Class axioms where the first class is named
                 .expectClass("c")
                 .expectEither(
                         branch()
@@ -118,6 +125,9 @@ public class MOSAxiomTreeParser {
                         branch()
                                 .expectKeyword(EQUIVALENT_TO).expectClassExpression("s")
                                 .create(e -> df.getOWLEquivalentClassesAxiom(e.cls("c"), e.clsExpr("s"))),
+                        branch()
+                                .expectKeyword(DISJOINT_WITH).expectClassExpression("s")
+                                .create(e -> df.getOWLDisjointClassesAxiom(e.cls("c"), e.clsExpr("s"))),
                         branch()
                                 .expectAnnotationProperty("p").expectLiteral("v")
                                 .create(e -> df.getOWLAnnotationAssertionAxiom(e.annotProp("p"), e.cls("c").getIRI(), e.lit("v")))
@@ -146,8 +156,34 @@ public class MOSAxiomTreeParser {
                                 .create(e -> df.getOWLAnnotationAssertionAxiom(e.annotProp("a"), e.dataProp("p").getIRI(), e.lit("v"))),
                         branch()
                                 .expectPrefixKeyword(RANGE).expectDatatype("d")
-                                .create(e -> df.getOWLDataPropertyRangeAxiom(e.dataProp("p"), e.datatype("d")))
+                                .create(e -> df.getOWLDataPropertyRangeAxiom(e.dataProp("p"), e.datatype("d"))),
+                        branch()
+                                .expectKeyword(DISJOINT_WITH).expectDataPropertyExpression("q")
+                                .create(e -> df.getOWLDisjointDataPropertiesAxiom(e.dataProp("p"), e.dataPropExpr("q")))
                 );
+    }
+
+    private ParseTree objectPropertyChainAxiom(final int index) { // only works for 1 link
+        if (index > MAX_LEN_CHAIN) {
+            return branch();
+        }
+        return branch()
+                .expectObjectPropertyExpression("p" + index)
+                .expectKeyword(CHAIN_CONNECT)
+                .expectEither(
+                        branch()
+                            .expectObjectPropertyExpression("p" + (index+1))
+                            .expectPrefixKeyword(SUB_PROPERTY_OF)
+                            .expectObjectPropertyExpression("s")
+                            .create(e -> {
+                                List<OWLObjectPropertyExpression> chain = new ArrayList<>();
+                                for (int i = 0; i < index + 2; i++) {
+                                    chain.add(e.objPropExpr("p"+i));
+                                }
+                                return df.getOWLSubPropertyChainOfAxiom(chain, e.objPropExpr("s"));
+                            }),
+                        objectPropertyChainAxiom(index+1) // or recurse infinitely unless we restrict
+                        );
     }
 
     private ParseTree objectPropertyAxiom() {
@@ -171,12 +207,10 @@ public class MOSAxiomTreeParser {
                                 .create(e -> df.getOWLSubObjectPropertyOfAxiom(e.objProp("p"), e.objPropExpr("s"))),
                         branch()
                                 .expectPrefixKeyword(EQUIVALENT_PROPERTIES).expectObjectPropertyExpression("p2")
-                                .create(e -> df.getOWLEquivalentObjectPropertiesAxiom(e.objProp("p"), e.objPropExpr("p2")))//,
-//                        branch()
-//                                .expectList("ch", CHAIN_CONNECT, new ObjPropMatcher())
-//                                .expectKeyword(SUB_PROPERTY_CHAIN)
-//                                .expectObjectProperty("s")
-//                                .create(e -> df.getOWLSubPropertyChainOfAxiom(e.getList("ch"), e.objProp("s")))
+                                .create(e -> df.getOWLEquivalentObjectPropertiesAxiom(e.objProp("p"), e.objPropExpr("p2"))),
+                        branch()
+                                .expectKeyword(DISJOINT_WITH).expectObjectPropertyExpression("p2")
+                                .create(e -> df.getOWLDisjointObjectPropertiesAxiom(e.objProp("p"), e.objPropExpr("p2")))
                 );
     }
 }

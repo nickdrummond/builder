@@ -11,6 +11,8 @@ import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -80,6 +82,32 @@ public class MOSAxiomTreeParserTest {
     }
 
     @Test
+    public void annotationAssertionAxiom() {
+        OWLNamedIndividual a = ind("a");
+        OWLAxiom expected = df.getOWLAnnotationAssertionAxiom(annotP("ap"), a.getIRI(), lit("value"));
+        assertEquals(expected, parser.parse("a ap \"value\""));
+    }
+
+    @Test
+    public void minimumPropertyChainAxiom() {
+        List<OWLObjectPropertyExpression> chain = List.of(objP("prop1"), objP("prop2"));
+        OWLAxiom expected = df.getOWLSubPropertyChainOfAxiom(chain, objP("sProp"));
+        assertEquals(expected, parser.parse("prop1 o prop2 SubPropertyOf: sProp"));
+    }
+
+
+    @Test
+    public void longerPropertyChainAxiom() {
+        List<OWLObjectPropertyExpression> chain = List.of(
+                objP("prop1"),
+                objP("prop2"),
+                objP("prop3"),
+                objP("prop4"));
+        OWLAxiom expected = df.getOWLSubPropertyChainOfAxiom(chain, objP("sProp"));
+        assertEquals(expected, parser.parse("prop1 o prop2 o prop3 o prop4 SubPropertyOf: sProp"));
+    }
+
+    @Test
     public void missingPropertyOrKeywordInIndividualAxiom() {
         try {
             ind("anindividual");
@@ -122,13 +150,6 @@ public class MOSAxiomTreeParserTest {
             assertTrue(e.isClassNameExpected());
             assertEquals(18, e.getStartPos());
         }
-    }
-
-    @Test
-    public void annotationAssertionAxiom() {
-        OWLNamedIndividual a = ind("a");
-        OWLAxiom expected = df.getOWLAnnotationAssertionAxiom(annotP("ap"), a.getIRI(), lit("value"));
-        assertEquals(expected, parser.parse("a ap \"value\""));
     }
 
     @Test

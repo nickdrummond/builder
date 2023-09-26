@@ -43,8 +43,8 @@ public class FinderUtils {
                 .map(OWLAnnotationAssertionAxiom::getSubject)
                 .map(OWLAnnotationObject::asIRI)
                 .flatMap(Optional::stream)
-                .flatMap(iri -> helper.entitiesForIRI(iri, helper.mngr.ontologies()))
-                .collect(Collectors.toList());
+                .flatMap(helper::entitiesForIRI)
+                .toList();
     }
 
     private static boolean literalValueContains(OWLAnnotationAssertionAxiom ax, String value) {

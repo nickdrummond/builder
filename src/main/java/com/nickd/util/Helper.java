@@ -9,6 +9,7 @@ import org.semanticweb.owlapi.expression.ShortFormEntityChecker;
 import org.semanticweb.owlapi.formats.RioTurtleDocumentFormat;
 import org.semanticweb.owlapi.formats.TurtleDocumentFormat;
 import org.semanticweb.owlapi.manchestersyntax.parser.ManchesterOWLSyntaxClassExpressionParser;
+import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
@@ -54,7 +55,7 @@ public class Helper {
     public OWLReasoner r;
     public OWLReasoner told;
 
-    private final ShortFormProvider sfp;
+    final ShortFormProvider sfp;
     public final BidirectionalShortFormProviderAdapter nameCache;
     private final ShortFormEntityChecker checker;
     private final ManchesterOWLSyntaxClassExpressionParser mos;
@@ -96,10 +97,10 @@ public class Helper {
         df = mngr.getOWLDataFactory();
 
         defaultSearchLabel = annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
-        // TODO should use the given annotation prop (EDITOR_LABEL)
         sfp = new AnnotationValueShortFormProvider(List.of(defaultSearchLabel), Collections.emptyMap(), mngr);
         nameCache = new BidirectionalShortFormProviderAdapter(sfp);
         suggestions.getSignature(Imports.INCLUDED).forEach(nameCache::add);
+
         checker = new ShortFormEntityChecker(nameCache);
         mos = new ManchesterOWLSyntaxClassExpressionParser(df, checker);
         mosAxiom = new MOSAxiomTreeParser(df, checker);
@@ -178,10 +179,6 @@ public class Helper {
         return ont.entitiesInSignature(makeIRI(s)).findFirst();
     }
 
-    public OWLEntity check(String name) {
-        return checker.getOWLObjectProperty(name);
-    }
-
     public OWLClassExpression mos(String s) {
         return mos.parse(s);
     }
@@ -200,7 +197,7 @@ public class Helper {
         }
         else {
             StringWriter w = new StringWriter();
-            o.accept(new MyMOSObjectRenderer(w, sfp));
+            o.accept(new MyMOSObjectRenderer(w, this));
             return singleLine ? MyStringUtils.singleLine(w.toString()) : w.toString();
         }
     }
@@ -277,7 +274,7 @@ public class Helper {
         }
     }
 
-    public Stream<OWLEntity> entitiesForIRI(IRI iri, Stream<OWLOntology> ontologies) {
-        return ontologies.flatMap(ont -> ont.entitiesInSignature(iri)).distinct();
+    public Stream<OWLEntity> entitiesForIRI(IRI iri) {
+        return ont.entitiesInSignature(iri, Imports.INCLUDED).distinct();
     }
 }

@@ -3,14 +3,12 @@ package com.nickd.parser;
 import com.nickd.util.Helper;
 import org.junit.Test;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
-import org.semanticweb.owlapi.model.AxiomType;
-import org.semanticweb.owlapi.model.OWLAnnotation;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -26,10 +24,12 @@ public class RoundtripTest {
 
         List<OWLAxiom> skipped = new ArrayList<>();
 
+        List<OWLAxiom> failed = new ArrayList<>();
+
         helper.ont.axioms(Imports.INCLUDED).forEach( ax -> {
             Set<OWLAnnotation> annotations = ax.getAnnotations();
             if (!annotations.isEmpty()) {
-                System.out.println("stripping annotations = " + annotations);
+                System.out.println("stripping axiom annotations = " + annotations);
                 ax = ax.getAxiomWithoutAnnotations();
                 System.out.println("on axiom: " + ax);
             }
@@ -40,9 +40,7 @@ public class RoundtripTest {
                     AxiomType.DISJOINT_UNION,
                     AxiomType.DIFFERENT_INDIVIDUALS,
                     AxiomType.DISJOINT_OBJECT_PROPERTIES,
-                    AxiomType.DISJOINT_DATA_PROPERTIES,
-                    AxiomType.SUB_PROPERTY_CHAIN_OF,
-                    AxiomType.DECLARATION // datatype declarations are not well formed
+                    AxiomType.DISJOINT_DATA_PROPERTIES
             )) {
                 skipped.add(ax);
                 return;
@@ -51,15 +49,17 @@ public class RoundtripTest {
             String axiomStr = helper.render(ax);
 
             try {
-                OWLAxiom result = helper.mosAxiom(axiomStr);
-
-//                assertEquals("Wrong axiom parsing " + axiomStr, ax, result);
+                helper.mosAxiom(axiomStr);
             }
             catch(ParserException e) {
-                System.err.println("Axiom: " + axiomStr + " (" + ax + ")");
-                e.printStackTrace();
-                fail();
+                System.out.println(axiomStr);
+                System.err.println(e.getMessage());
+                failed.add(ax);
             }
         });
+
+        assertEquals(0, failed.size());
+
+        skipped.forEach( ax -> System.out.println("skipped axiom = " + helper.render(ax)) );
     }
 }

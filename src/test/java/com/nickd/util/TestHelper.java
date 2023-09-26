@@ -28,9 +28,6 @@ public class TestHelper extends TestSetup {
         return helper.render(entity);
     }
 
-    public OWLEntity check(String name) {
-        return helper.check(name);
-    }
 
     public OWLClassExpression mos(String s) {
         return helper.mos(s);
