@@ -36,9 +36,7 @@ public class RoundtripTest {
 
             // TODO lists
             if (ax.isOfType(
-                    AxiomType.DISJOINT_CLASSES,
                     AxiomType.DISJOINT_UNION,
-                    AxiomType.DIFFERENT_INDIVIDUALS,
                     AxiomType.DISJOINT_OBJECT_PROPERTIES,
                     AxiomType.DISJOINT_DATA_PROPERTIES
             )) {

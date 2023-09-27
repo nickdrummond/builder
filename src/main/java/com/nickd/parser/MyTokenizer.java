@@ -80,4 +80,8 @@ public class MyTokenizer {
         }
         return i;
     }
+
+    public boolean hasMore() {
+        return originalText.length() > pointer;
+    }
 }

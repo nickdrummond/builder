@@ -1,9 +1,7 @@
 package com.nickd.parser;
 
 import org.semanticweb.owlapi.expression.OWLEntityChecker;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLDataFactory;
-import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
+import org.semanticweb.owlapi.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,8 @@ public class MOSAxiomTreeParser {
                         annotationPropertyAxiom(),
                         objectPropertyAxiom(),
                         objectPropertyChainAxiom(0),
-                        dataPropertyAxiom()
+                        dataPropertyAxiom(),
+                        disjointAxiom()
                 );
         return builder.getAxiom();
     }
@@ -211,6 +210,21 @@ public class MOSAxiomTreeParser {
                         branch()
                                 .expectKeyword(DISJOINT_WITH).expectObjectPropertyExpression("p2")
                                 .create(e -> df.getOWLDisjointObjectPropertiesAxiom(e.objProp("p"), e.objPropExpr("p2")))
+                );
+    }
+
+
+    private ParseTree disjointAxiom() {
+        return branch()
+                .expectEither(
+                        branch()
+                                .expectPrefixKeyword(DISJOINT_CLASSES)
+                                .expectClassList("c", ",")
+                                .create(e -> df.getOWLDisjointClassesAxiom(e.list("c", OWLClassExpression.class))),
+                        branch()
+                                .expectPrefixKeyword(DIFFERENT_INDIVIDUALS)
+                                .expectIndividualsList("i", ",")
+                                .create(e -> df.getOWLDifferentIndividualsAxiom(e.list("i", OWLNamedIndividual.class)))
                 );
     }
 }

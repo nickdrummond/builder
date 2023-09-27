@@ -26,5 +26,5 @@ public interface OWLObjectProvider {
 
     OWLDatatype datatype(String key);
 
-//    List<T> getList(String key);
+    <T> List<T> list(String key, Class<T> clz);
 }

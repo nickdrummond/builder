@@ -95,7 +95,6 @@ public class MOSAxiomTreeParserTest {
         assertEquals(expected, parser.parse("prop1 o prop2 SubPropertyOf: sProp"));
     }
 
-
     @Test
     public void longerPropertyChainAxiom() {
         List<OWLObjectPropertyExpression> chain = List.of(
@@ -105,6 +104,34 @@ public class MOSAxiomTreeParserTest {
                 objP("prop4"));
         OWLAxiom expected = df.getOWLSubPropertyChainOfAxiom(chain, objP("sProp"));
         assertEquals(expected, parser.parse("prop1 o prop2 o prop3 o prop4 SubPropertyOf: sProp"));
+    }
+
+    @Test
+    public void disjointClassesAxiom_single() {
+        List<OWLClass> classes = List.of(
+                cls("c1"));
+        OWLAxiom expected = df.getOWLDisjointClassesAxiom(classes);
+        assertEquals(expected, parser.parse("DisjointClasses: c1"));
+    }
+
+    @Test
+    public void disjointClassesAxiom_two() {
+        List<OWLClass> classes = List.of(
+                cls("c1"),
+                cls("c2"));
+        OWLAxiom expected = df.getOWLDisjointClassesAxiom(classes);
+        assertEquals(expected, parser.parse("DisjointClasses: c1, c2"));
+    }
+
+    @Test
+    public void disjointClassesAxiom_many() {
+        List<OWLClass> classes = List.of(
+                cls("c1"),
+                cls("c2"),
+                cls("c3"),
+                cls("c4"));
+        OWLAxiom expected = df.getOWLDisjointClassesAxiom(classes);
+        assertEquals(expected, parser.parse("DisjointClasses: c1, c2, c3, c4"));
     }
 
     @Test

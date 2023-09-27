@@ -156,7 +156,7 @@ public class AddAxiomCommandTest {
         OWLClass alien = helper.cls("Alien");
         ent("Alien", alien, helper.suggestions);
 
-        Context result = command.handle(new UserInput("+ Chewbacca Type Ali"), rootContext);
+        Context result = command.handle(new UserInput("+ Chewbacca Type Alien"), rootContext);
         assertEquals(rootContext, result);
     }
 

@@ -5,6 +5,8 @@ import org.semanticweb.owlapi.expression.OWLEntityChecker;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 
+import java.util.List;
+
 public abstract class AbstractParseMatcher<T> {
 
     public T get() {
@@ -52,5 +54,9 @@ public abstract class AbstractParseMatcher<T> {
 
     public OWLDatatype getDatatype() {
         throw new RuntimeException("Not a datatype matcher");
+    }
+
+    public List<T> getObjectList(Class<T> clz) {
+        throw new RuntimeException("Not a list matcher");
     }
 }

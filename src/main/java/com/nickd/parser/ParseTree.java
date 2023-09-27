@@ -6,6 +6,7 @@ import org.semanticweb.owlapi.manchestersyntax.parser.ManchesterOWLSyntax;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -99,48 +100,57 @@ public class ParseTree implements OWLObjectProvider {
         return expect(key, new DatatypeMatcher());
     }
 
-    public ParseTree expectSugar(String s) {
-        return expect(s, new SugarMatcher(s));
+    public ParseTree expectSugar(String key) {
+        return expect(key, new SugarMatcher(key));
+    }
+
+    public ParseTree expectClassList(String key, String separator) {
+        return expect(key, new ClassListMatcher(separator));
+    }
+
+    public ParseTree expectIndividualsList(String key, String separator) {
+        return expect(key, new IndividualListMatcher(separator));
     }
 
     @Override
     public OWLObjectPropertyExpression objPropExpr(String key) {
-        return getMatcherForKey(key).getObjectPropertyExpression();
+        return getMatcherForKey(key, OWLObjectPropertyExpression.class).getObjectPropertyExpression();
     }
 
     @Override
     public OWLObjectProperty objProp(String key) {
-        return getMatcherForKey(key).getObjectProperty();
+        return getMatcherForKey(key, OWLObjectProperty.class).getObjectProperty();
     }
 
     @Override
     public OWLDataPropertyExpression dataPropExpr(String key) {
-        return getMatcherForKey(key).getDataPropertyExpression();
+        return getMatcherForKey(key, OWLDataPropertyExpression.class).getDataPropertyExpression();
     }
 
     @Override
     public OWLDataProperty dataProp(String key) {
-        return getMatcherForKey(key).getDataProperty();
+        return getMatcherForKey(key, OWLDataProperty.class).getDataProperty();
     }
 
     @Override
     public OWLAnnotationProperty annotProp(String key) {
-        return getMatcherForKey(key).getAnnotationProperty();
+        return getMatcherForKey(key, OWLAnnotationProperty.class).getAnnotationProperty();
     }
 
     @Override
     public OWLNamedIndividual ind(String key) {
-        return getMatcherForKey(key).getIndividual();
+        return getMatcherForKey(key, OWLNamedIndividual.class).getIndividual();
     }
 
     @Override
     public OWLClass cls(String key) {
-        return getMatcherForKey(key).getOWLClass();
+        return getMatcherForKey(key, OWLClass.class).getOWLClass();
     }
 
-    private <T> AbstractParseMatcher<T> getMatcherForKey(String key) {
+    private <T> AbstractParseMatcher<T> getMatcherForKey(String key, Class<T> clz) {
         try {
-            return (AbstractParseMatcher<T>)matchers.get(key);
+            // TODO type check
+            return matchers.get(key);
         }
         catch (NullPointerException e) {
             throw new RuntimeException("Cannot find binding for " + key, e);
@@ -149,17 +159,22 @@ public class ParseTree implements OWLObjectProvider {
 
     @Override
     public OWLClassExpression clsExpr(String key) {
-        return getMatcherForKey(key).getOWLClassExpression();
+        return getMatcherForKey(key, OWLClassExpression.class).getOWLClassExpression();
     }
 
     @Override
     public OWLDatatype datatype(String key) {
-        return getMatcherForKey(key).getDatatype();
+        return getMatcherForKey(key, OWLDatatype.class).getDatatype();
+    }
+
+    @Override
+    public <T> List<T> list(String key, Class<T> type) {
+        return getMatcherForKey(key, type).getObjectList(type);
     }
 
     @Override
     public OWLLiteral lit(String key) {
-        return getMatcherForKey(key).getLiteral();
+        return getMatcherForKey(key, OWLLiteral.class).getLiteral();
     }
 
     public OWLAxiom getAxiom() {
