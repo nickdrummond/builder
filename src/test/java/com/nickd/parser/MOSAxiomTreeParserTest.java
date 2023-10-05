@@ -37,20 +37,20 @@ public class MOSAxiomTreeParserTest {
     }
 
     @Test
-    public void wellFormedPropertyCharacteristics() {
+    public void propertyCharacteristics_wellFormed() {
         assertEquals(df.getOWLTransitiveObjectPropertyAxiom(objP("op")), parser.parse("Transitive: op"));
         assertEquals(df.getOWLFunctionalObjectPropertyAxiom(objP("op")), parser.parse("Functional: op"));
         assertEquals(df.getOWLFunctionalDataPropertyAxiom(dataP("dp")), parser.parse("Functional: dp"));
     }
 
     @Test
-    public void testClassAssertion() {
+    public void classAssertion() {
         OWLAxiom expected = df.getOWLClassAssertionAxiom(cls("A"), ind("a"));
         assertEquals(expected, parser.parse("a Type A"));
     }
 
     @Test
-    public void testClassAssertionWithClassExpression() {
+    public void classAssertion_classExpression() {
         OWLAxiom expected = df.getOWLClassAssertionAxiom(
                 df.getOWLObjectSomeValuesFrom(objP("p"), cls("A")),
                 ind("a"));
@@ -58,25 +58,45 @@ public class MOSAxiomTreeParserTest {
     }
 
     @Test
-    public void testObjectPropertyAssertion() {
+    public void subClassOf_namedClasses() {
+        OWLAxiom expected = df.getOWLSubClassOfAxiom(cls("A"), cls("B"));
+        assertEquals(expected, parser.parse("A SubClassOf B"));
+    }
+
+    @Test
+    public void subClassOf_classExpression() {
+        OWLAxiom expected = df.getOWLSubClassOfAxiom(cls("A"), df.getOWLObjectSomeValuesFrom(objP("p"), cls("B")));
+        assertEquals(expected, parser.parse("A SubClassOf p some B"));
+    }
+
+    @Test
+    public void subClassOf_bothClassExpressions() {
+        OWLAxiom expected = df.getOWLSubClassOfAxiom(
+                df.getOWLObjectAllValuesFrom(objP("q"), cls("A")),
+                df.getOWLObjectSomeValuesFrom(objP("p"), cls("B")));
+        assertEquals(expected, parser.parse("q only A SubClassOf p some B"));
+    }
+
+    @Test
+    public void objectPropertyAssertion() {
         OWLAxiom expected = df.getOWLObjectPropertyAssertionAxiom(objP("p"), ind("a"), ind("b"));
         assertEquals(expected, parser.parse("a p b"));
     }
 
     @Test
-    public void testDataPropertyAssertion() {
+    public void dataPropertyAssertion() {
         OWLAxiom expected = df.getOWLDataPropertyAssertionAxiom(dataP("p"), ind("a"), lit("value"));
         assertEquals(expected, parser.parse("a p \"value\""));
     }
 
     @Test
-    public void testNegativeObjectPropertyAssertion() {
+    public void negativeObjectPropertyAssertion() {
         OWLAxiom expected = df.getOWLNegativeObjectPropertyAssertionAxiom(objP("p"), ind("a"), ind("b"));
         assertEquals(expected, parser.parse("not (a p b)"));
     }
 
     @Test
-    public void testNegativeDataPropertyAssertion() {
+    public void negativeDataPropertyAssertion() {
         OWLAxiom expected = df.getOWLNegativeDataPropertyAssertionAxiom(dataP("p"), ind("a"), lit("value"));
         assertEquals(expected, parser.parse("not (a p \"value\")"));
     }
@@ -89,14 +109,14 @@ public class MOSAxiomTreeParserTest {
     }
 
     @Test
-    public void minimumPropertyChainAxiom() {
+    public void propertyChainAxiom_minimum() {
         List<OWLObjectPropertyExpression> chain = List.of(objP("prop1"), objP("prop2"));
         OWLAxiom expected = df.getOWLSubPropertyChainOfAxiom(chain, objP("sProp"));
         assertEquals(expected, parser.parse("prop1 o prop2 SubPropertyOf: sProp"));
     }
 
     @Test
-    public void longerPropertyChainAxiom() {
+    public void propertyChainAxiom_longer() {
         List<OWLObjectPropertyExpression> chain = List.of(
                 objP("prop1"),
                 objP("prop2"),
