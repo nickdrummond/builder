@@ -16,6 +16,8 @@ public interface Creator<T extends OWLEntity> {
 
     Creator<T> withType(String typeName);
 
+    Creator<T> withCommonParent(String parentSelector);
+
     Creator<T> withRelation(String relationName, String subjectSelector);
 
     void build(WikiPage wikiPage);

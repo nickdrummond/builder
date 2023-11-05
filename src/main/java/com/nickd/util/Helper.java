@@ -87,14 +87,13 @@ public class Helper {
     public Helper(LoadsOntology loadsOntology, OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
         mngr = new OWLManager().get();
         mngr.setIRIMappers(Collections.singleton(ontologyIRIMapper));
+        df = mngr.getOWLDataFactory();
 
         long start = System.currentTimeMillis();
         ont = loadsOntology.apply(mngr);
         timeToLoad = System.currentTimeMillis() - start;
 
         suggestions = loadOrCreateSuggestions(ontologyIRIMapper);
-
-        df = mngr.getOWLDataFactory();
 
         defaultSearchLabel = annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
         sfp = new AnnotationValueShortFormProvider(List.of(defaultSearchLabel), Collections.emptyMap(), mngr);

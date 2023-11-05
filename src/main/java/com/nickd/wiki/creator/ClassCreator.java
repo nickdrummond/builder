@@ -70,10 +70,7 @@ public class ClassCreator implements Creator<OWLClass> {
         List<OWLOntologyChange> changes = new ArrayList<>();
         parents.forEach(parent -> {
             Elements superclassNode = parent.select(selector);
-            if (superclassNode.isEmpty()) {
-                System.out.println("selector.isEmpty() = " + selector);
-            }
-            else {
+            if (!superclassNode.isEmpty()) {
                 String superclassHref = superclassNode.get(0).attr("href");
                 OWLClass superclass = clsForHref(superclassHref, wikiPage);
 
@@ -90,10 +87,6 @@ public class ClassCreator implements Creator<OWLClass> {
 
     private Stream<IRI> getLinks(Elements parent) {
         Elements selected = parent.select(selector);
-        if (selected.isEmpty()) {
-            System.err.println(selector + " matches nothing");
-        }
-
         return getHrefs(selected).map(h -> IRI.create(Wiki.WIKI + h));
     }
 
@@ -110,7 +103,7 @@ public class ClassCreator implements Creator<OWLClass> {
         String iriString = iri.getIRIString();
         List<OWLEntity> matches = FinderUtils.annotationExact(iriString, helper.df.getRDFSSeeAlso(), helper);
         if (matches.isEmpty()) {
-            OWLEntity entity = create(page.wikiPageName(iri), iri, helper);
+            OWLEntity entity = create(Wiki.pageName(iri), iri, helper);
             page.addSuggestion(entity, iriString);
         } else {
             matches.forEach(e -> page.addKnownEntities(e, iriString));

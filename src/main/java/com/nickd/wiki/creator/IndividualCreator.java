@@ -115,7 +115,7 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
         String iriString = iri.getIRIString();
         List<OWLEntity> matches = FinderUtils.annotationExact(iriString, helper.df.getRDFSSeeAlso(), helper);
         if (matches.isEmpty()) {
-            OWLEntity entity = create(page.wikiPageName(iri), iri, helper);
+            OWLEntity entity = create(Wiki.pageName(iri), iri, helper);
             page.addSuggestion(entity, iriString);
         } else {
             matches.forEach(e -> page.addKnownEntities(e, iriString));
@@ -125,7 +125,7 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
     @Override
     public OWLNamedIndividual create(String name, IRI iri, Helper helper) {
         OWLAnnotationProperty editorLabel = helper.annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
-        OWLClass rootType = helper.cls(typeName);
+        OWLClass rootType = (typeName != null) ? helper.cls(typeName) : helper.df.getOWLThing();
         EntityBuilder entityBuilder = new EntityBuilder(helper, editorLabel);
         return entityBuilder.build(rootType, name, iri, helper.suggestions);
     }

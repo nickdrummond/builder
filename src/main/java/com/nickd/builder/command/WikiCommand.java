@@ -1,8 +1,6 @@
 package com.nickd.builder.command;
 
 import com.nickd.builder.Context;
-import com.nickd.builder.OWLObjectListContext;
-import com.nickd.builder.SuggestionContext;
 import com.nickd.builder.UserInput;
 import com.nickd.util.*;
 import com.nickd.wiki.WikiPage;
@@ -55,7 +53,6 @@ public class WikiCommand implements Command {
             try {
                 WikiPage wikiPage = forString(refUrl, helper);
 
-                System.out.println(wikiPage.getIri());
             } catch (IOException e) {
                 logger.warn("Cannot find Wookieepedia for ${}", refUrl);
             }

@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +33,6 @@ public class WikiPage {
     private final Helper helper;
     private OWLAnnotationProperty seeAlso;
     private final Document doc;
-    private final IRI iri;
 
     private final List<Creator<? extends OWLEntity>> selectors;
 
@@ -38,10 +40,9 @@ public class WikiPage {
     private final LinkedHashMap<OWLEntity, String> knownEntities = new LinkedHashMap<>();
     private final LinkedHashMap<OWLEntity, String> suggestions = new LinkedHashMap<>();
 
-    WikiPage(Helper helper, IRI iri, List<Creator<? extends OWLEntity>> selectors) throws IOException {
+    WikiPage(Helper helper, InputStream input, List<Creator<? extends OWLEntity>> selectors) throws IOException {
         this.helper = helper;
-        this.iri = iri;
-        this.doc = getFromWebOrCache(iri);
+        this.doc = Jsoup.parse(input, StandardCharsets.UTF_8.name(), "");
         this.selectors = selectors;
 
 //        indexEntity(iri.toString(), creator); // TODO index self
@@ -82,23 +83,6 @@ public class WikiPage {
 //        return Collections.emptySet();
 //    }
 
-    private Document getFromWebOrCache(IRI iri) throws IOException {
-        File cacheFile = cacheFileFor(iri);
-
-        if (!cacheFile.exists()) {
-            CurlUtils.curl(iri, cacheFile);
-        }
-        return Jsoup.parse(cacheFile);
-    }
-
-    private File cacheFileFor(IRI iri) {
-        return new File(Constants.CACHES + wikiPageName(iri) + ".html");
-    }
-
-    public String wikiPageName(IRI iri) {
-        String path = iri.toURI().getPath();
-        return path.substring(path.lastIndexOf("/") + 1);
-    }
 
     public List<OWLEntity> getKnown() {
         return new ArrayList<>(knownEntities.keySet());
@@ -106,10 +90,6 @@ public class WikiPage {
 
     public List<OWLEntity> getUnknown() {
         return new ArrayList<>(suggestions.keySet());
-    }
-
-    public IRI getIri() {
-        return iri;
     }
 
     public Document getDocument() {
