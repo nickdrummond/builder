@@ -24,6 +24,7 @@ public class OntologiesCommand implements Command {
     public Context handle(UserInput input, Context parentContext) {
         List<String> params = input.params();
         if (params.size() == 1) {
+            // TODO query changed ontologies
             OWLOntology ont = helper.ont(params.get(0));
             if (ont != null) {
                 return new OWLObjectListContext(helper.render(ont), parentContext, ont);

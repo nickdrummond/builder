@@ -2,13 +2,8 @@ package com.nickd.wiki.creator;
 
 import com.nickd.util.Helper;
 import com.nickd.wiki.WikiPage;
-import org.jsoup.nodes.Document;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLEntity;
-import org.semanticweb.owlapi.model.OWLNamedIndividual;
-
-import java.util.List;
-import java.util.stream.Stream;
 
 public interface Creator<T extends OWLEntity> {
 

@@ -1,25 +1,17 @@
 package com.nickd.wiki;
 
-import com.nickd.builder.Constants;
-import com.nickd.wiki.creator.Creator;
-import com.nickd.util.CurlUtils;
-import com.nickd.util.FinderUtils;
 import com.nickd.util.Helper;
+import com.nickd.wiki.creator.Creator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class WikiPage {
 

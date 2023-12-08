@@ -8,7 +8,6 @@ import org.semanticweb.owlapi.model.parameters.Imports;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +25,7 @@ public class RoundtripTest {
 
         List<OWLAxiom> failed = new ArrayList<>();
 
-        helper.ont.axioms(Imports.INCLUDED).forEach( ax -> {
+        helper.ont.axioms(Imports.INCLUDED).forEach(ax -> {
             Set<OWLAnnotation> annotations = ax.getAnnotations();
             if (!annotations.isEmpty()) {
                 System.out.println("stripping axiom annotations = " + annotations);

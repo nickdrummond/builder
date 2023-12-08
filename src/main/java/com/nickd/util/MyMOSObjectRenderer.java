@@ -3,7 +3,6 @@ package com.nickd.util;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLEntity;
-import org.semanticweb.owlapi.util.ShortFormProvider;
 
 import java.io.Writer;
 import java.util.Optional;

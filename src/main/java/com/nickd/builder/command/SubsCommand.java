@@ -5,8 +5,6 @@ import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
 import com.nickd.util.Helper;
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLNamedIndividual;
-import org.semanticweb.owlapi.model.OWLOntology;
 
 import java.util.List;
 import java.util.Optional;

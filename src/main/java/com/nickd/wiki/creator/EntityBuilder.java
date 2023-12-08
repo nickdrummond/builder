@@ -1,7 +1,6 @@
 package com.nickd.wiki.creator;
 
 import com.nickd.builder.Constants;
-import com.nickd.util.FinderUtils;
 import com.nickd.util.Helper;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;

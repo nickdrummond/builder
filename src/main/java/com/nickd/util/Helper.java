@@ -6,10 +6,7 @@ import openllet.owlapi.OWLHelper;
 import openllet.owlapi.OpenlletReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.expression.ShortFormEntityChecker;
-import org.semanticweb.owlapi.formats.RioTurtleDocumentFormat;
-import org.semanticweb.owlapi.formats.TurtleDocumentFormat;
 import org.semanticweb.owlapi.manchestersyntax.parser.ManchesterOWLSyntaxClassExpressionParser;
-import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
@@ -24,8 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +32,7 @@ import static com.nickd.builder.Constants.BASE;
 public class Helper {
 
     private final Logger logger = LoggerFactory.getLogger(Helper.class);
+    private final IOUtils io;
 
     public OWLAnnotationProperty getLabelAnnotationProp() {
         return defaultSearchLabel;
@@ -66,7 +62,6 @@ public class Helper {
     public long timeToLoad;
     public long timeToClassify;
 
-    private final Set<OWLOntology> changedOntologies = new HashSet<>();
 
     public Helper() throws OWLOntologyCreationException {
         this(OWLOntologyManager::createOntology, ontologyIRI -> ontologyIRI);
@@ -93,7 +88,9 @@ public class Helper {
         ont = loadsOntology.apply(mngr);
         timeToLoad = System.currentTimeMillis() - start;
 
-        suggestions = loadOrCreateSuggestions(ontologyIRIMapper);
+        io = new IOUtils(ont);
+
+        suggestions = io.loadOrCreateSuggestions(ontologyIRIMapper);
 
         defaultSearchLabel = annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
         sfp = new AnnotationValueShortFormProvider(List.of(defaultSearchLabel), Collections.emptyMap(), mngr);
@@ -108,7 +105,6 @@ public class Helper {
 
         mngr.addOntologyChangeListener(changes ->
             changes.stream().map(OWLOntologyChange::getOntology).distinct().forEach( o -> {
-                changedOntologies.add(o); // mark the ontologies as written to
                 o.signature().forEach(nameCache::add); // update the name caches
                 // TODO should really also deal with deletes
             })
@@ -118,22 +114,6 @@ public class Helper {
         logger.info("Loaded in " + timeToLoad + "ms");
     }
 
-    private OWLOntology loadOrCreateSuggestions(OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
-        IRI suggestionsLoc = ontologyIRIMapper.getDocumentIRI(Constants.SUGGESTIONS_BASE);
-        try {
-            final OWLOntology o = mngr.loadOntology(suggestionsLoc);
-            logger.info("Loaded suggestions from: {}", suggestionsLoc);
-            return o;
-        }
-        catch (OWLOntologyCreationException e) {
-            logger.info("No suggestions at {}. Creating new suggestions ontology", suggestionsLoc);
-            final OWLOntology o = mngr.createOntology(IRI.create(BASE + "/suggestions.owl.ttl"));
-            ont.getOntologyID().getOntologyIRI().ifPresent(iri ->
-                    o.applyChange(new AddImport(o, df.getOWLImportsDeclaration(iri))));
-            mngr.setOntologyFormat(o, new TurtleDocumentFormat());
-            return o;
-        }
-    }
 
     private static IRI makeIRI(String s) {
         if (!s.contains("%")) { // if not already encoded
@@ -225,55 +205,12 @@ public class Helper {
 //        System.out.println("Classified in " + TimeUnit.NANOSECONDS.toMillis(timeToClassify) + "ms");
     }
 
-    public void saveChanged() throws OWLOntologyStorageException {
-        save(changedOntologies);
-    }
-
-    public void saveAll() throws OWLOntologyStorageException {
-        save(mngr.getOntologies());
-    }
-
-    public void save(Set<OWLOntology> onts) throws OWLOntologyStorageException {
-        for (OWLOntology o : onts) {
-            OWLDocumentFormat format = o.getOWLOntologyManager().getOntologyFormat(o);
-            if (format instanceof RioTurtleDocumentFormat) {
-                TurtleDocumentFormat ttl = new TurtleDocumentFormat();
-                ttl.copyPrefixesFrom((RioTurtleDocumentFormat)format);
-                o.getOWLOntologyManager().setOntologyFormat(o, ttl);
-            }
-            mngr.saveOntology(o);
-        }
-    }
-
-    public void save(String location) throws OWLOntologyStorageException {
-        File base = new File(location);
-        System.out.println("Saving ontologies to " + base.getAbsolutePath());
-        if (!base.exists()) {
-            if (!base.mkdir()) {
-                throw new OWLOntologyStorageException("Could not create compilation directory: " + base);
-            }
-        }
-
-        for (OWLOntology o : mngr.getOntologies()) {
-            OWLDocumentFormat format = o.getOWLOntologyManager().getOntologyFormat(o);
-            if (format instanceof RioTurtleDocumentFormat) {
-                TurtleDocumentFormat ttl = new TurtleDocumentFormat();
-                ttl.copyPrefixesFrom((RioTurtleDocumentFormat)format);
-                o.getOWLOntologyManager().setOntologyFormat(o, ttl);
-            }
-            try {
-                IRI iri = o.getOntologyID().getOntologyIRI().orElseThrow();
-                File f = new File(base, iri.getShortForm());
-                System.out.println("saving..." + f.getAbsolutePath());
-                FileOutputStream fileOutputStream = new FileOutputStream(f);
-                mngr.saveOntology(o, fileOutputStream);
-            } catch (FileNotFoundException e) {
-                throw new OWLOntologyStorageException(e);
-            }
-        }
-    }
 
     public Stream<OWLEntity> entitiesForIRI(IRI iri) {
         return ont.entitiesInSignature(iri, Imports.INCLUDED).distinct();
+    }
+
+    public IOUtils getIO() {
+        return this.io;
     }
 }
