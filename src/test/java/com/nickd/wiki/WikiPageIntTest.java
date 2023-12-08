@@ -1,6 +1,6 @@
 package com.nickd.wiki;
 
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.wiki.creator.Creator;
 import com.nickd.wiki.creator.IndividualCreator;
 import org.hamcrest.CoreMatchers;
@@ -20,7 +20,7 @@ public class WikiPageIntTest {
     public void selectsEntitiesFromPage() throws OWLOntologyCreationException, IOException {
         InputStream html = getClass().getClassLoader().getResourceAsStream("Clone_Cadets.html");
 
-        Helper helper = new Helper(); // empty ont
+        App app = new App(); // empty ont
 
         List<Creator<? extends OWLEntity>> sel = List.of(
                 new IndividualCreator(
@@ -28,12 +28,12 @@ public class WikiPageIntTest {
                         "#app_canon_characters + table + .appearances a")
         );
 
-        WikiPage page = new WikiPage(helper, html, sel);
+        WikiPage page = new WikiPage(app, html, sel);
 
         List<OWLEntity> unknownEntities = page.getUnknown();
 
         unknownEntities.forEach(System.out::println);
 
-        assertThat(unknownEntities, CoreMatchers.hasItem(helper.ind("Echo")));
+        assertThat(unknownEntities, CoreMatchers.hasItem(app.ind("Echo")));
     }
 }

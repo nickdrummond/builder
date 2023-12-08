@@ -3,7 +3,7 @@ package com.nickd.builder.command;
 import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.util.MyStringUtils;
 import com.nickd.wiki.creator.EntityBuilder;
 import org.semanticweb.owlapi.model.*;
@@ -18,13 +18,13 @@ public class NewClassCommand implements Command {
 
     private final Logger logger = LoggerFactory.getLogger(NewClassCommand.class);
 
-    private final Helper helper;
+    private final App app;
 
     private final EntityBuilder entityBuilder;
 
-    public NewClassCommand(Helper helper, OWLAnnotationProperty editorLabel) {
-        this.helper = helper;
-        entityBuilder = new EntityBuilder(helper, editorLabel);
+    public NewClassCommand(App app, OWLAnnotationProperty editorLabel) {
+        this.app = app;
+        entityBuilder = new EntityBuilder(app, editorLabel);
     }
 
 
@@ -48,16 +48,16 @@ public class NewClassCommand implements Command {
 
         if (params.size() >= 2) {
             String sup = params.get(0);
-            OWLClass superCls = helper.cls(sup);
+            OWLClass superCls = app.cls(sup);
 
-            if (!helper.ont.containsClassInSignature(superCls.getIRI(), Imports.INCLUDED)) {
+            if (!app.ont.containsClassInSignature(superCls.getIRI(), Imports.INCLUDED)) {
                 logger.warn("No class found in ontologies: " + superCls);
                 return context;
             }
 
             String label = params.get(1);
 
-//            if (helper.ont.containsEntityInSignature(cls.getIRI(), Imports.INCLUDED)) {
+//            if (app.ont.containsEntityInSignature(cls.getIRI(), Imports.INCLUDED)) {
 //                logger.warn("IRI already used in ontologies: " + cls);
 //                return context;
 //            }
@@ -71,13 +71,13 @@ public class NewClassCommand implements Command {
 
             OWLClass cls = entityBuilder.buildCls(superCls, label, seeAlso, targetOntology);
 
-            return new OWLObjectListContext(helper.render(cls), context, cls);
+            return new OWLObjectListContext(app.render(cls), context, cls);
         }
         return context;
     }
 
     private UserInput replaceVars(UserInput input, Context currentContext) {
-        List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());
+        List<String> names = currentContext.getSelectedObjects().stream().map(app::render).collect(Collectors.toList());
         return new UserInput(MyStringUtils.replaceVars(input.fullText(), names));
     }
 

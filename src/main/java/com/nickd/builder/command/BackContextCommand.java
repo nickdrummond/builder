@@ -2,17 +2,17 @@ package com.nickd.builder.command;
 
 import com.nickd.builder.Context;
 import com.nickd.builder.UserInput;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BackContextCommand implements Command {
 
-    private final Helper helper;
+    private final App app;
 
-    public BackContextCommand(Helper helper) {
-        this.helper = helper;
+    public BackContextCommand(App app) {
+        this.app = app;
     }
 
     @Override

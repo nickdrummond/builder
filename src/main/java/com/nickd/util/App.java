@@ -29,64 +29,56 @@ import java.util.stream.Stream;
 
 import static com.nickd.builder.Constants.BASE;
 
-public class Helper {
+public class App {
 
-    private final Logger logger = LoggerFactory.getLogger(Helper.class);
-    private final IOUtils io;
+    private final Logger logger = LoggerFactory.getLogger(App.class);
 
-    public OWLAnnotationProperty getLabelAnnotationProp() {
-        return defaultSearchLabel;
-    }
+    public final IOUtils io;
 
-    @FunctionalInterface
-    public interface LoadsOntology {
-        OWLOntology apply(OWLOntologyManager mngr) throws OWLOntologyCreationException;
-    }
+    public final OWLAnnotationProperty defaultSearchLabel;
 
-    OWLAnnotationProperty defaultSearchLabel;
+    public final OWLOntologyManager mngr;
+    public final  OWLOntology ont;
+    public final  OWLDataFactory df;
 
-    public OWLOntologyManager mngr;
-    public OWLOntology ont;
-    public OWLDataFactory df;
     public OWLReasoner r;
+
     public OWLReasoner told;
 
-    final ShortFormProvider sfp;
+    public final ShortFormProvider sfp;
     public final BidirectionalShortFormProviderAdapter nameCache;
     private final ShortFormEntityChecker checker;
     private final ManchesterOWLSyntaxClassExpressionParser mos;
     private final MOSAxiomTreeParser mosAxiom;
 
-    public OWLOntology suggestions;
+    public final OWLOntology suggestions;
 
-    public long timeToLoad;
-    public long timeToClassify;
-
-
-    public Helper() throws OWLOntologyCreationException {
+    public App() throws OWLOntologyCreationException {
         this(OWLOntologyManager::createOntology, ontologyIRI -> ontologyIRI);
     }
 
-    public Helper(final File ontFile) throws OWLOntologyCreationException {
+    public App(final File ontFile) throws OWLOntologyCreationException {
         this(ontFile, new SameDirectoryIRIMapper(ontFile));
     }
 
-    public Helper(final File ontFile, final OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
+    public App(final File ontFile, final OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
         this(mngr -> mngr.loadOntologyFromOntologyDocument(ontFile), ontologyIRIMapper);
     }
 
-    public Helper(final String iri, final OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
+    public App(final String iri, final OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
         this(mngr -> mngr.loadOntology(IRI.create(iri)), ontologyIRIMapper);
     }
 
-    public Helper(LoadsOntology loadsOntology, OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
+    public App(LoadsOntology loadsOntology, OWLOntologyIRIMapper ontologyIRIMapper) throws OWLOntologyCreationException {
         mngr = new OWLManager().get();
         mngr.setIRIMappers(Collections.singleton(ontologyIRIMapper));
         df = mngr.getOWLDataFactory();
 
         long start = System.currentTimeMillis();
         ont = loadsOntology.apply(mngr);
-        timeToLoad = System.currentTimeMillis() - start;
+
+        long timeToLoad = System.currentTimeMillis() - start;
+        logger.info("Loaded in {} ms", timeToLoad);
 
         io = new IOUtils(ont);
 
@@ -110,10 +102,12 @@ public class Helper {
             })
             // TODO kill reasoners
         );
-
-        logger.info("Loaded in " + timeToLoad + "ms");
     }
 
+    @FunctionalInterface
+    public interface LoadsOntology {
+        OWLOntology apply(OWLOntologyManager mngr) throws OWLOntologyCreationException;
+    }
 
     private static IRI makeIRI(String s) {
         if (!s.contains("%")) { // if not already encoded
@@ -181,36 +175,7 @@ public class Helper {
         }
     }
 
-    public void clearReasoner() {
-        r.dispose();
-        r = null;
-    }
-
-    public void classify() {
-
-        final OWLHelper h = OWLHelper.createLightHelper(OpenlletReasonerFactory.getInstance().createReasoner(ont));
-
-//        long start = System.nanoTime();
-
-        r = h.getReasoner();
-        // analogue to Protege "Classify"
-        r.precomputeInferences(InferenceType.CLASS_HIERARCHY);
-        r.precomputeInferences(InferenceType.OBJECT_PROPERTY_HIERARCHY);
-        r.precomputeInferences(InferenceType.DATA_PROPERTY_HIERARCHY);
-        r.precomputeInferences(InferenceType.CLASS_ASSERTIONS);
-        r.precomputeInferences(InferenceType.OBJECT_PROPERTY_ASSERTIONS);
-        r.precomputeInferences(InferenceType.SAME_INDIVIDUAL);
-
-//        timeToClassify = System.nanoTime() - start;
-//        System.out.println("Classified in " + TimeUnit.NANOSECONDS.toMillis(timeToClassify) + "ms");
-    }
-
-
     public Stream<OWLEntity> entitiesForIRI(IRI iri) {
         return ont.entitiesInSignature(iri, Imports.INCLUDED).distinct();
-    }
-
-    public IOUtils getIO() {
-        return this.io;
     }
 }

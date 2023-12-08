@@ -4,7 +4,7 @@ import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.SuggestionContext;
 import com.nickd.builder.UserInput;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import org.slf4j.Logger;
@@ -17,10 +17,10 @@ public class SuggestCommand implements Command {
 
     private final Logger logger = LoggerFactory.getLogger(SuggestCommand.class);
 
-    private final Helper helper;
+    private final App app;
 
-    public SuggestCommand(Helper helper) {
-        this.helper = helper;
+    public SuggestCommand(App app) {
+        this.app = app;
     }
 
     @Override
@@ -33,22 +33,22 @@ public class SuggestCommand implements Command {
         Stream<? extends OWLEntity> suggestions = null;
         if (!input.params().isEmpty()) {
             if (input.params().get(0).equalsIgnoreCase("C")) {
-                suggestions = helper.suggestions.classesInSignature(Imports.EXCLUDED);
+                suggestions = app.suggestions.classesInSignature(Imports.EXCLUDED);
             }
             else if (input.params().get(0).equalsIgnoreCase("i")) {
-                suggestions = helper.suggestions.individualsInSignature(Imports.EXCLUDED);
+                suggestions = app.suggestions.individualsInSignature(Imports.EXCLUDED);
             }
         }
 
         if (suggestions == null) {
-            suggestions = helper.suggestions.signature(Imports.EXCLUDED);
+            suggestions = app.suggestions.signature(Imports.EXCLUDED);
         }
 
         List<? extends OWLEntity> orderedSuggestions = suggestions
-                .filter(e -> !helper.ont.containsEntityInSignature(e, Imports.INCLUDED))
+                .filter(e -> !app.ont.containsEntityInSignature(e, Imports.INCLUDED))
                 .sorted().toList();
 
-        return new SuggestionContext(helper.suggestions,
+        return new SuggestionContext(app.suggestions,
                 new OWLObjectListContext("suggestions", context, orderedSuggestions));
     }
 }

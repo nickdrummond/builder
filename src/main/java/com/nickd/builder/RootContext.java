@@ -1,6 +1,6 @@
 package com.nickd.builder;
 
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.*;
 
 import javax.annotation.Nonnull;
@@ -49,7 +49,7 @@ public class RootContext implements Context {
     }
 
     @Override
-    public void renderSelection(PrintStream out, Helper helper) {
+    public void renderSelection(PrintStream out, App app) {
 
     }
 

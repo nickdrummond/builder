@@ -2,7 +2,7 @@ package com.nickd.wiki.creator;
 
 import com.nickd.builder.Constants;
 import com.nickd.util.FinderUtils;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.wiki.Wiki;
 import com.nickd.wiki.WikiPage;
 import org.jsoup.select.Elements;
@@ -69,8 +69,8 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
     }
 
     private void makeRelations(WikiPage wikiPage, Elements parents) {
-        Helper helper = wikiPage.getHelper();
-        OWLObjectProperty rel = helper.prop(relationName);
+        App app = wikiPage.getHelper();
+        OWLObjectProperty rel = app.prop(relationName);
 
         List<OWLOntologyChange> changes = new ArrayList<>();
         parents.forEach(parent -> {
@@ -86,11 +86,11 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
                 subjects.forEach(sub -> {
                     String subjectStr = sub.attr("href");
                     OWLNamedIndividual subjectInd = indForHref(subjectStr, wikiPage);
-                    changes.add(new AddAxiom(helper.suggestions, helper.df.getOWLObjectPropertyAssertionAxiom(rel, subjectInd, objectInd)));
+                    changes.add(new AddAxiom(app.suggestions, app.df.getOWLObjectPropertyAssertionAxiom(rel, subjectInd, objectInd)));
                 });
             }
         });
-        helper.mngr.applyChanges(changes);
+        app.mngr.applyChanges(changes);
     }
 
     private OWLNamedIndividual indForHref(String href, WikiPage wikiPage) {
@@ -110,12 +110,12 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
     }
 
     private void indexEntity(IRI iri, WikiPage page) {
-        Helper helper = page.getHelper();
+        App app = page.getHelper();
 
         String iriString = iri.getIRIString();
-        List<OWLEntity> matches = FinderUtils.annotationExact(iriString, helper.df.getRDFSSeeAlso(), helper);
+        List<OWLEntity> matches = FinderUtils.annotationExact(iriString, app.df.getRDFSSeeAlso(), app);
         if (matches.isEmpty()) {
-            OWLEntity entity = create(Wiki.pageName(iri), iri, helper);
+            OWLEntity entity = create(Wiki.pageName(iri), iri, app);
             page.addSuggestion(entity, iriString);
         } else {
             matches.forEach(e -> page.addKnownEntities(e, iriString));
@@ -123,11 +123,11 @@ public class IndividualCreator implements Creator<OWLNamedIndividual> {
     }
 
     @Override
-    public OWLNamedIndividual create(String name, IRI iri, Helper helper) {
-        OWLAnnotationProperty editorLabel = helper.annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
-        OWLClass rootType = (typeName != null) ? helper.cls(typeName) : helper.df.getOWLThing();
-        EntityBuilder entityBuilder = new EntityBuilder(helper, editorLabel);
-        return entityBuilder.build(rootType, name, iri, helper.suggestions);
+    public OWLNamedIndividual create(String name, IRI iri, App app) {
+        OWLAnnotationProperty editorLabel = app.annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
+        OWLClass rootType = (typeName != null) ? app.cls(typeName) : app.df.getOWLThing();
+        EntityBuilder entityBuilder = new EntityBuilder(app, editorLabel);
+        return entityBuilder.build(rootType, name, iri, app.suggestions);
     }
 
 }

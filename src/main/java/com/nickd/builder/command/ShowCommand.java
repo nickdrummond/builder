@@ -3,18 +3,18 @@ package com.nickd.builder.command;
 import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
+import com.nickd.util.App;
 import com.nickd.util.DescriptionVisitorEx;
-import com.nickd.util.Helper;
 import org.semanticweb.owlapi.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShowCommand implements Command {
-    private Helper helper;
+    private App app;
 
-    public ShowCommand(Helper helper) {
-        this.helper = helper;
+    public ShowCommand(App app) {
+        this.app = app;
     }
 
     public Context handle(UserInput input, Context context) {
@@ -49,7 +49,7 @@ public class ShowCommand implements Command {
 //        Optional<? extends OWLObject> sel = Optional.empty();
 //
 //        if (input.params().size() == 1) {
-//            sel = helper.entity(input.paramsAsString());
+//            sel = app.entity(input.paramsAsString());
 //        } else if (context.isSingleSelection()) {
 //            sel = Optional.of(context.getSelected());
 //        }
@@ -58,7 +58,7 @@ public class ShowCommand implements Command {
 //    }
 //
 //    private Context createDescriptionContext(Context context, OWLObject e) {
-//        return new OWLObjectListContext("axioms", context, e.accept(new DescriptionVisitorEx(context.getOntology(helper))));
+//        return new OWLObjectListContext("axioms", context, e.accept(new DescriptionVisitorEx(context.getOntology(app))));
 //    }
 
 

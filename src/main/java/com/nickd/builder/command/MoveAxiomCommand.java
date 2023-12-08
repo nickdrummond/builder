@@ -3,7 +3,7 @@ package com.nickd.builder.command;
 import com.nickd.builder.Context;
 import com.nickd.builder.UserInput;
 import com.nickd.util.FinderUtils;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.util.MyStringUtils;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
@@ -19,12 +19,12 @@ public class MoveAxiomCommand implements Command {
 
     Logger logger = LoggerFactory.getLogger(MoveAxiomCommand.class);
 
-    private final Helper helper;
+    private final App app;
     private final ParserCommon common;
 
-    public MoveAxiomCommand(Helper helper, OWLAnnotationProperty defaultSearchLabel) {
-        this.helper = helper;
-        this.common = new ParserCommon(helper, defaultSearchLabel);
+    public MoveAxiomCommand(App app, OWLAnnotationProperty defaultSearchLabel) {
+        this.app = app;
+        this.common = new ParserCommon(app, defaultSearchLabel);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class MoveAxiomCommand implements Command {
         if (!input.isEmpty()) {
             try {
                 String param = input.paramsAsString();
-                ax = Optional.of(helper.mosAxiom(param));
+                ax = Optional.of(app.mosAxiom(param));
             } catch (ParserException e) {
                 logger.error("Cannot find axiom", e);
                 return common.createPlaceholderContext(input, e, context);
@@ -61,15 +61,15 @@ public class MoveAxiomCommand implements Command {
     }
 
     private void move(OWLAxiom ax,  OWLOntology to) {
-        List<? extends OWLOntologyChange> changes = FinderUtils.getOntologiesContaining(ax, helper.ont)
-                .peek(o -> System.out.println("Moving " + helper.render(ax) + " from " + helper.render(o)))
+        List<? extends OWLOntologyChange> changes = FinderUtils.getOntologiesContaining(ax, app.ont)
+                .peek(o -> System.out.println("Moving " + app.render(ax) + " from " + app.render(o)))
                 .map(o -> List.of(new RemoveAxiom(o, ax), new AddAxiom(to, ax)))
                 .flatMap(Collection::stream).collect(Collectors.toList());
-        helper.mngr.applyChanges(changes);
+        app.mngr.applyChanges(changes);
 }
 
     private UserInput replaceVars(UserInput input, Context currentContext) {
-        List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());
+        List<String> names = currentContext.getSelectedObjects().stream().map(app::render).collect(Collectors.toList());
         return new UserInput(MyStringUtils.replaceVars(input.fullText(), names));
     }
 }

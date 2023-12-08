@@ -1,7 +1,7 @@
 package com.nickd.wiki;
 
+import com.nickd.util.App;
 import com.nickd.util.FinderUtils;
-import com.nickd.util.Helper;
 import com.nickd.wiki.creator.ClassCreator;
 import com.nickd.wiki.creator.Creator;
 import com.nickd.wiki.creator.IndividualCreator;
@@ -62,41 +62,41 @@ public class Wiki {
 
     private final static Map<IRI, WikiPage> cache = new HashMap<>();
 
-    public static WikiPage forIRI(Helper helper, IRI iri) throws IOException {
-        cache.putIfAbsent(iri, new WikiPage(helper, fileCache.getFromWebOrCache(iri), selectorMap));
+    public static WikiPage forIRI(App app, IRI iri) throws IOException {
+        cache.putIfAbsent(iri, new WikiPage(app, fileCache.getFromWebOrCache(iri), selectorMap));
         return cache.get(iri);
     }
 
-    public static WikiPage forName(Helper helper, String ref) throws IOException {
-        return forIRI(helper, getWikiUrl(ref));
+    public static WikiPage forName(App app, String ref) throws IOException {
+        return forIRI(app, getWikiUrl(ref));
     }
 
-    public static WikiPage forOWLEntity(Helper helper, OWLEntity entity) throws IOException {
-        OWLAnnotationProperty seeAlso = helper.df.getRDFSSeeAlso();
-        Optional<IRI> optIRI = getWookieepediaRefsFor(entity, helper, seeAlso);
+    public static WikiPage forOWLEntity(App app, OWLEntity entity) throws IOException {
+        OWLAnnotationProperty seeAlso = app.df.getRDFSSeeAlso();
+        Optional<IRI> optIRI = getWookieepediaRefsFor(entity, app, seeAlso);
         return (optIRI.isPresent()) ?
-                forIRI(helper, optIRI.get()) :
-                forName(helper, helper.render(entity));
+                forIRI(app, optIRI.get()) :
+                forName(app, app.render(entity));
     }
 
 
-    public static WikiPage forString(@Nonnull String ref, Helper helper) throws IOException {
+    public static WikiPage forString(@Nonnull String ref, App app) throws IOException {
         if (ref.startsWith("http")) {
-            return Wiki.forIRI(helper, IRI.create(ref));
+            return Wiki.forIRI(app, IRI.create(ref));
         } else {
-            OWLAnnotationProperty seeAlso = helper.df.getRDFSSeeAlso();
-            List<OWLEntity> entities = FinderUtils.annotationExact(ref, seeAlso, helper);
+            OWLAnnotationProperty seeAlso = app.df.getRDFSSeeAlso();
+            List<OWLEntity> entities = FinderUtils.annotationExact(ref, seeAlso, app);
             if (entities.isEmpty()) {
-                return Wiki.forName(helper, ref);
+                return Wiki.forName(app, ref);
             } else {
                 OWLEntity entity = entities.get(0);
-                return Wiki.forOWLEntity(helper, entity);
+                return Wiki.forOWLEntity(app, entity);
             }
         }
     }
 
-    private static Optional<IRI> getWookieepediaRefsFor(OWLEntity entity, Helper helper, OWLAnnotationProperty seeAlso) {
-        return helper.ont.annotationAssertionAxioms(entity.getIRI(), Imports.INCLUDED)
+    private static Optional<IRI> getWookieepediaRefsFor(OWLEntity entity, App app, OWLAnnotationProperty seeAlso) {
+        return app.ont.annotationAssertionAxioms(entity.getIRI(), Imports.INCLUDED)
                 .filter(ax -> ax.getProperty().equals(seeAlso))
                 .map(OWLAnnotationAssertionAxiom::getValue)
                 .map(OWLAnnotationValue::asLiteral)

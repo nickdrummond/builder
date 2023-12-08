@@ -3,7 +3,7 @@ package com.nickd.builder.command;
 import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.util.FinderUtils;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.EntityType;
@@ -20,11 +20,11 @@ public class ParserCommon {
 
     Logger logger = LoggerFactory.getLogger(ParserCommon.class);
 
-    private final Helper helper;
+    private final App app;
     private final OWLAnnotationProperty defaultSearchLabel;
 
-    public ParserCommon(Helper helper, OWLAnnotationProperty defaultSearchLabel) {
-        this.helper = helper;
+    public ParserCommon(App app, OWLAnnotationProperty defaultSearchLabel) {
+        this.app = app;
         this.defaultSearchLabel = defaultSearchLabel;
     }
 
@@ -43,10 +43,10 @@ public class ParserCommon {
         }
         else if (entities.size() == 1) {
             if (remains.isEmpty()) {
-                s += " " + helper.render(entities.get(0));
+                s += " " + app.render(entities.get(0));
             }
             else {
-                s += remains.replace(token, helper.render(entities.get(0)));
+                s += remains.replace(token, app.render(entities.get(0)));
             }
         }
         else {
@@ -62,8 +62,8 @@ public class ParserCommon {
 
     // TODO should parse the input at the ? and restrict the autocomplete to the correct type/keyword
     public List<String> autocomplete(UserInput input, Context context) {
-        return FinderUtils.annotationContains(input.autocompleteWord(), defaultSearchLabel, helper).stream()
-                .map(helper::render).collect(Collectors.toList());
+        return FinderUtils.annotationContains(input.autocompleteWord(), defaultSearchLabel, app).stream()
+                .map(app::render).collect(Collectors.toList());
     }
 
     private List<OWLEntity> getExpectedType(ParserException e) {
@@ -71,27 +71,27 @@ public class ParserCommon {
 
         List<OWLEntity> expected = new ArrayList<>();
         if (e.isIndividualNameExpected()) {
-            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.NAMED_INDIVIDUAL, helper));
+            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.NAMED_INDIVIDUAL, app));
         }
 
         if (e.isClassNameExpected()) {
-            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.CLASS, helper));
+            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.CLASS, app));
         }
 
         if (e.isObjectPropertyNameExpected()) {
-            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.OBJECT_PROPERTY, helper));
+            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.OBJECT_PROPERTY, app));
         }
 
         if (e.isDataPropertyNameExpected()) {
-            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.DATA_PROPERTY, helper));
+            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.DATA_PROPERTY, app));
         }
 
         if (e.isAnnotationPropertyNameExpected()) {
-            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.ANNOTATION_PROPERTY, helper));
+            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.ANNOTATION_PROPERTY, app));
         }
 
         if (e.isDatatypeNameExpected()) {
-            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.DATATYPE, helper));
+            expected.addAll(FinderUtils.annotationContains(token, defaultSearchLabel, EntityType.DATATYPE, app));
         }
 
         return expected;

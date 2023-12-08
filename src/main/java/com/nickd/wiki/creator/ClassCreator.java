@@ -2,7 +2,7 @@ package com.nickd.wiki.creator;
 
 import com.nickd.builder.Constants;
 import com.nickd.util.FinderUtils;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.wiki.Wiki;
 import com.nickd.wiki.WikiPage;
 import org.apache.commons.lang3.NotImplementedException;
@@ -65,7 +65,7 @@ public class ClassCreator implements Creator<OWLClass> {
     }
 
     private void makeSubclasses(WikiPage wikiPage, Elements parents) {
-        Helper helper = wikiPage.getHelper();
+        App app = wikiPage.getHelper();
 
         List<OWLOntologyChange> changes = new ArrayList<>();
         parents.forEach(parent -> {
@@ -78,11 +78,11 @@ public class ClassCreator implements Creator<OWLClass> {
                 subclasses.forEach(sub -> {
                     String subclassHref = sub.attr("href");
                     OWLClass subclass = clsForHref(subclassHref, wikiPage);
-                    changes.add(new AddAxiom(helper.suggestions, helper.df.getOWLSubClassOfAxiom(subclass, superclass)));
+                    changes.add(new AddAxiom(app.suggestions, app.df.getOWLSubClassOfAxiom(subclass, superclass)));
                 });
             }
         });
-        helper.mngr.applyChanges(changes);
+        app.mngr.applyChanges(changes);
     }
 
     private Stream<IRI> getLinks(Elements parent) {
@@ -98,12 +98,12 @@ public class ClassCreator implements Creator<OWLClass> {
     }
 
     private void indexEntity(IRI iri, WikiPage page) {
-        Helper helper = page.getHelper();
+        App app = page.getHelper();
 
         String iriString = iri.getIRIString();
-        List<OWLEntity> matches = FinderUtils.annotationExact(iriString, helper.df.getRDFSSeeAlso(), helper);
+        List<OWLEntity> matches = FinderUtils.annotationExact(iriString, app.df.getRDFSSeeAlso(), app);
         if (matches.isEmpty()) {
-            OWLEntity entity = create(Wiki.pageName(iri), iri, helper);
+            OWLEntity entity = create(Wiki.pageName(iri), iri, app);
             page.addSuggestion(entity, iriString);
         } else {
             matches.forEach(e -> page.addKnownEntities(e, iriString));
@@ -111,11 +111,11 @@ public class ClassCreator implements Creator<OWLClass> {
     }
 
     @Override
-    public OWLClass create(String name, IRI iri, Helper helper) {
-        OWLAnnotationProperty editorLabel = helper.annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
-        OWLClass rootType = helper.cls(typeName);
-        EntityBuilder entityBuilder = new EntityBuilder(helper, editorLabel);
-        return entityBuilder.buildCls(rootType, name, iri, helper.suggestions);
+    public OWLClass create(String name, IRI iri, App app) {
+        OWLAnnotationProperty editorLabel = app.annotProp(Constants.EDITOR_LABEL, Constants.UTIL_BASE);
+        OWLClass rootType = app.cls(typeName);
+        EntityBuilder entityBuilder = new EntityBuilder(app, editorLabel);
+        return entityBuilder.buildCls(rootType, name, iri, app.suggestions);
     }
 
     private OWLClass clsForHref(String href, WikiPage wikiPage) {

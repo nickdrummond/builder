@@ -2,7 +2,7 @@ package com.nickd.builder.command;
 
 import com.nickd.builder.Context;
 import com.nickd.builder.UserInput;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +13,10 @@ public class SaveCommand implements Command {
 
     private Logger logger = LoggerFactory.getLogger(SaveCommand.class);
 
-    private Helper helper;
+    private App app;
 
-    public SaveCommand(Helper helper) {
-        this.helper = helper;
+    public SaveCommand(App app) {
+        this.app = app;
     }
 
 
@@ -29,10 +29,10 @@ public class SaveCommand implements Command {
     public Context handle(UserInput input, Context context) {
         try {
             if (input.params().size() == 1 && input.params().get(0).equals("all")) {
-                helper.getIO().saveAll();
+                app.io.saveAll();
             }
             else {
-                helper.getIO().saveChanged();
+                app.io.saveChanged();
             }
         } catch (OWLOntologyStorageException e) {
             logger.error("Failed to save changed ontologies", e);

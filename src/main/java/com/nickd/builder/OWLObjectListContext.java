@@ -1,6 +1,6 @@
 package com.nickd.builder;
 
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.*;
 
 import javax.annotation.Nonnull;
@@ -37,11 +37,11 @@ public class OWLObjectListContext extends AbstractContext {
     }
 
     @Override
-    public void renderSelection(PrintStream out, Helper helper) {
+    public void renderSelection(PrintStream out, App app) {
         if (!isSingleSelection()) {
             for (int i = 0; i < selectedObjects.size(); i++) {
                 OWLObject o = selectedObjects.get(i);
-                out.println("\t" + i + ") " + helper.render(o));
+                out.println("\t" + i + ") " + app.render(o));
             }
         }
     }

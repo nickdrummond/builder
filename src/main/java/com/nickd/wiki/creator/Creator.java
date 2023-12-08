@@ -1,13 +1,13 @@
 package com.nickd.wiki.creator;
 
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.wiki.WikiPage;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLEntity;
 
 public interface Creator<T extends OWLEntity> {
 
-    T create(String name, IRI iri, Helper helper);
+    T create(String name, IRI iri, App app);
 
     Creator<T> withType(String typeName);
 

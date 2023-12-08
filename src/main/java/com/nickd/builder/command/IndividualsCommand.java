@@ -3,7 +3,7 @@ package com.nickd.builder.command;
 import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.*;
 
 import java.util.List;
@@ -11,10 +11,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class IndividualsCommand implements Command {
-    private Helper helper;
+    private App app;
 
-    public IndividualsCommand(Helper helper) {
-        this.helper = helper;
+    public IndividualsCommand(App app) {
+        this.app = app;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class IndividualsCommand implements Command {
     }
 
     private List<OWLNamedIndividual> getInstances(OWLClass cls) {
-        return helper.told.instances(cls).sorted().collect(Collectors.toList());
+        return app.told.instances(cls).sorted().collect(Collectors.toList());
     }
 
     private List<OWLNamedIndividual> getAllIndividualsInSig(OWLOntology ont) {

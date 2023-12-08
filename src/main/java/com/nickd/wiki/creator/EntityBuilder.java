@@ -1,7 +1,7 @@
 package com.nickd.wiki.creator;
 
 import com.nickd.builder.Constants;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public class EntityBuilder {
 
-    private Helper helper;
+    private App app;
 
     private final OWLAnnotationProperty editorLabel;
     private final OWLAnnotationProperty legacyId;
@@ -18,18 +18,18 @@ public class EntityBuilder {
     private final OWLAnnotationProperty seeAlso;
     private final OWLDatatype anyURI;
 
-    public EntityBuilder(Helper helper, OWLAnnotationProperty editorLabel) {
-        this.helper = helper;
+    public EntityBuilder(App app, OWLAnnotationProperty editorLabel) {
+        this.app = app;
         this.editorLabel = editorLabel;
 
-        legacyId = helper.annotProp(Constants.LEGACY_ID, Constants.UTIL_BASE);
-        rdfsLabel = helper.df.getRDFSLabel();
-        seeAlso = helper.df.getRDFSSeeAlso();
-        anyURI = helper.df.getOWLDatatype(XSDVocabulary.ANY_URI);
+        legacyId = app.annotProp(Constants.LEGACY_ID, Constants.UTIL_BASE);
+        rdfsLabel = app.df.getRDFSLabel();
+        seeAlso = app.df.getRDFSSeeAlso();
+        anyURI = app.df.getOWLDatatype(XSDVocabulary.ANY_URI);
     }
 
     public OWLNamedIndividual build(OWLClass cls, String editorLabel, IRI seeAlso, OWLOntology targetOntology) {
-        OWLNamedIndividual ind = helper.ind(editorLabel);
+        OWLNamedIndividual ind = app.ind(editorLabel);
 
         List<OWLOntologyChange> changes = new ArrayList<>();
 
@@ -43,7 +43,7 @@ public class EntityBuilder {
     }
 
     public OWLClass buildCls(OWLClass superclass, String editorLabel, IRI seeAlso, OWLOntology targetOntology) {
-        OWLClass cls = helper.cls(editorLabel);
+        OWLClass cls = app.cls(editorLabel);
 
         List<OWLOntologyChange> changes = new ArrayList<>();
 
@@ -73,39 +73,39 @@ public class EntityBuilder {
             changes.add(addSeeAlso(seeAlso, entity, targetOntology));
         }
 
-        helper.mngr.applyChanges(changes);
+        app.mngr.applyChanges(changes);
     }
 
     private OWLOntologyChange addSuperclass(OWLClass cls, OWLClass superclass, OWLOntology targetOntology) {
-        return new AddAxiom(targetOntology, helper.df.getOWLSubClassOfAxiom(cls, superclass));
+        return new AddAxiom(targetOntology, app.df.getOWLSubClassOfAxiom(cls, superclass));
     }
 
     private OWLOntologyChange addType(OWLNamedIndividual ind, OWLClass cls, OWLOntology targetOntology) {
-        return new AddAxiom(targetOntology, helper.df.getOWLClassAssertionAxiom(cls, ind));
+        return new AddAxiom(targetOntology, app.df.getOWLClassAssertionAxiom(cls, ind));
     }
 
     private AddAxiom addLegacyId(OWLEntity ind, OWLOntology targetOntology) {
-        return new AddAxiom(targetOntology, getAnnotationAxiom(legacyId, ind, helper.lit(Integer.toString(ind.hashCode()))));
+        return new AddAxiom(targetOntology, getAnnotationAxiom(legacyId, ind, app.lit(Integer.toString(ind.hashCode()))));
     }
 
     private AddAxiom addDeclaration(OWLEntity ind, OWLOntology targetOntology) {
-        return new AddAxiom(targetOntology, helper.df.getOWLDeclarationAxiom(ind));
+        return new AddAxiom(targetOntology, app.df.getOWLDeclarationAxiom(ind));
     }
 
     private AddAxiom addEditorLabel(String id, OWLEntity ind, OWLOntology targetOntology) {
-        return new AddAxiom(targetOntology, getAnnotationAxiom(editorLabel, ind, helper.lit(id)));
+        return new AddAxiom(targetOntology, getAnnotationAxiom(editorLabel, ind, app.lit(id)));
     }
 
     private AddAxiom addLabel(String label, OWLEntity ind, OWLOntology targetOntology) {
-        return new AddAxiom(targetOntology, getAnnotationAxiom(rdfsLabel, ind, helper.lit(label, Constants.DEFAULT_LANG)));
+        return new AddAxiom(targetOntology, getAnnotationAxiom(rdfsLabel, ind, app.lit(label, Constants.DEFAULT_LANG)));
     }
 
     private AddAxiom addSeeAlso(IRI iri, OWLEntity ind, OWLOntology targetOntology) {
-        return new AddAxiom(targetOntology, getAnnotationAxiom(seeAlso, ind, helper.lit(iri.getIRIString(), anyURI)));
+        return new AddAxiom(targetOntology, getAnnotationAxiom(seeAlso, ind, app.lit(iri.getIRIString(), anyURI)));
     }
 
     private OWLAnnotationAssertionAxiom getAnnotationAxiom(OWLAnnotationProperty prop, OWLEntity ind, OWLLiteral value) {
-        return helper.df.getOWLAnnotationAssertionAxiom(prop, ind.getIRI(), value);
+        return app.df.getOWLAnnotationAssertionAxiom(prop, ind.getIRI(), value);
     }
 
     private String fromId(String label) {

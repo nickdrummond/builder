@@ -2,7 +2,7 @@ package com.nickd.builder.command;
 
 import com.nickd.builder.Context;
 import com.nickd.builder.UserInput;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.*;
 
 import java.util.List;
@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 
 public class UndoCommand implements Command {
     private final OWLOntologyChangeListener changeListener;
-    private Helper helper;
+    private App app;
     private Stack<List<? extends OWLOntologyChange>> history = new Stack<>();
 
-    public UndoCommand(Helper helper) {
-        this.helper = helper;
+    public UndoCommand(App app) {
+        this.app = app;
         this.changeListener = list -> history.push(list);
-        this.helper.mngr.addOntologyChangeListener(changeListener);
+        this.app.mngr.addOntologyChangeListener(changeListener);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class UndoCommand implements Command {
     @Override
     public Context handle(UserInput input, Context context) {
         List<? extends OWLOntologyChange> lastChanges = history.pop();
-        helper.mngr.applyChanges(reverseChanges(lastChanges));
+        app.mngr.applyChanges(reverseChanges(lastChanges));
         return context;
     }
 

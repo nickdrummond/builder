@@ -1,6 +1,6 @@
 package com.nickd.wiki;
 
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.wiki.creator.Creator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,7 +22,7 @@ public class WikiPage {
 //            "#mw-content-text p a"
 //    );
 
-    private final Helper helper;
+    private final App app;
     private OWLAnnotationProperty seeAlso;
     private final Document doc;
 
@@ -32,8 +32,8 @@ public class WikiPage {
     private final LinkedHashMap<OWLEntity, String> knownEntities = new LinkedHashMap<>();
     private final LinkedHashMap<OWLEntity, String> suggestions = new LinkedHashMap<>();
 
-    WikiPage(Helper helper, InputStream input, List<Creator<? extends OWLEntity>> selectors) throws IOException {
-        this.helper = helper;
+    WikiPage(App app, InputStream input, List<Creator<? extends OWLEntity>> selectors) throws IOException {
+        this.app = app;
         this.doc = Jsoup.parse(input, StandardCharsets.UTF_8.name(), "");
         this.selectors = selectors;
 
@@ -44,7 +44,7 @@ public class WikiPage {
 
     private void buildLinksIndex() {
 
-//        suggestType(doc).forEach(t -> System.out.println(helper.render(t)));
+//        suggestType(doc).forEach(t -> System.out.println(app.render(t)));
 
         selectors.forEach(creator -> {
             creator.build(this);
@@ -64,7 +64,7 @@ public class WikiPage {
 //            String valueLink = value.select("a[href]").first().text();
 //            System.out.println(property + " = " + valueLink);
 //            if (likelyTypes.contains(property)) {
-//                Set<OWLClass> clses = FinderUtils.annotationExact(valueLink, seeAlso, helper).stream()
+//                Set<OWLClass> clses = FinderUtils.annotationExact(valueLink, seeAlso, app).stream()
 //                        .filter(OWLEntity::isOWLClass)
 //                        .map(AsOWLClass::asOWLClass)
 //                        .collect(Collectors.toSet());
@@ -88,8 +88,8 @@ public class WikiPage {
         return doc;
     }
 
-    public Helper getHelper() {
-        return helper;
+    public App getHelper() {
+        return app;
     }
 
     public void addSuggestion(OWLEntity entity, String iriString) {

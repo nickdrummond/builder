@@ -1,7 +1,7 @@
 package com.nickd.builder;
 
 import com.nickd.builder.command.*;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import com.nickd.util.MyStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
@@ -30,7 +30,7 @@ public class BuilderController {
     private final Map<String, Command> commands;
     private final NotFoundCommand defaultCommand;
 
-    private final Helper helper;
+    private final App app;
     private final PrintStream outputStream;
 
     // should autocomplete live in Context?
@@ -40,32 +40,32 @@ public class BuilderController {
     private InputStream inputStream;
 
     public BuilderController(File file, PrintStream outputStream) throws OWLOntologyCreationException {
-        helper = new Helper(file);
+        app = new App(file);
         this.outputStream = outputStream;
-        OWLAnnotationProperty defaultSearchLabel = helper.getLabelAnnotationProp();
+        OWLAnnotationProperty defaultSearchLabel = app.defaultSearchLabel;
 
 
         // STATE needed instead of context
         // valid commands will be dependent on the current state
         commands = new HashMap<>();
-        commands.put("find", new FindCommand(helper, defaultSearchLabel));
-        commands.put("wiki", new WikiCommand(helper, defaultSearchLabel));
-        commands.put("suggest", new SuggestCommand(helper));
-        commands.put("accept", new AcceptCommand(helper, defaultSearchLabel));
-        commands.put("ont", new OntologiesCommand(helper));
-        commands.put("ind", new IndividualsCommand(helper));
-        commands.put("subs", new SubsCommand(helper));
-        commands.put("new", new NewInstanceCommand(helper, defaultSearchLabel));
-        commands.put("sub", new NewClassCommand(helper, defaultSearchLabel));
-        commands.put("+", new AddAxiomCommand(helper, defaultSearchLabel));
-        commands.put("-", new RemoveAxiomCommand(helper, defaultSearchLabel));
-        commands.put("move", new MoveAxiomCommand(helper, defaultSearchLabel));
-        commands.put("show", new ShowCommand(helper));
-        commands.put("<", new BackContextCommand(helper));
+        commands.put("find", new FindCommand(app, defaultSearchLabel));
+        commands.put("wiki", new WikiCommand(app, defaultSearchLabel));
+        commands.put("suggest", new SuggestCommand(app));
+        commands.put("accept", new AcceptCommand(app, defaultSearchLabel));
+        commands.put("ont", new OntologiesCommand(app));
+        commands.put("ind", new IndividualsCommand(app));
+        commands.put("subs", new SubsCommand(app));
+        commands.put("new", new NewInstanceCommand(app, defaultSearchLabel));
+        commands.put("sub", new NewClassCommand(app, defaultSearchLabel));
+        commands.put("+", new AddAxiomCommand(app, defaultSearchLabel));
+        commands.put("-", new RemoveAxiomCommand(app, defaultSearchLabel));
+        commands.put("move", new MoveAxiomCommand(app, defaultSearchLabel));
+        commands.put("show", new ShowCommand(app));
+        commands.put("<", new BackContextCommand(app));
         commands.put("<<", new RootContextCommand());
         commands.put("history", new HistoryCommand(history));
-        commands.put("undo", new UndoCommand(helper));
-        commands.put("save", new SaveCommand(helper));
+        commands.put("undo", new UndoCommand(app));
+        commands.put("save", new SaveCommand(app));
         // TODO
         defaultCommand = new NotFoundCommand(commands);
     }
@@ -76,7 +76,7 @@ public class BuilderController {
 
         Scanner in = new Scanner(inputStream);
 
-        Context currentContext = new RootContext(helper.ont);
+        Context currentContext = new RootContext(app.ont);
 
         boolean exit = false;
         while (!exit) {
@@ -123,7 +123,7 @@ public class BuilderController {
                     List<? extends OWLObject> selectedObjects = currentContext.getSelectedObjects();
                     OWLObject owlObject = selectedObjects.get(input.index());
                     Context c = replacePlaceholderInAncestorContext(owlObject, currentContext);
-                    return (c != null) ? c : new OWLObjectListContext(helper.render(owlObject), currentContext, owlObject);
+                    return (c != null) ? c : new OWLObjectListContext(app.render(owlObject), currentContext, owlObject);
                 }
             }
 
@@ -149,7 +149,7 @@ public class BuilderController {
         Command command = getCommand(input);
         Context c = command.handle(input, currentContext);
         if (c != currentContext) {
-            c.renderSelection(outputStream, helper);
+            c.renderSelection(outputStream, app);
         }
         return c;
     }
@@ -164,7 +164,7 @@ public class BuilderController {
         }
 
         String name = currentContext.getName();
-        String withReplacement = name.replaceFirst(placeHolderPattern, helper.render(owlObject));
+        String withReplacement = name.replaceFirst(placeHolderPattern, app.render(owlObject));
         if (!withReplacement.equals(name)) { // we've substituted the placeholder
             return performCommand(new UserInput(withReplacement), currentContext.getParent());
         }

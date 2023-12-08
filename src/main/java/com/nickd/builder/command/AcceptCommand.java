@@ -4,7 +4,7 @@ import com.nickd.builder.Constants;
 import com.nickd.builder.Context;
 import com.nickd.builder.UserInput;
 import com.nickd.util.DescriptionVisitorEx;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +18,12 @@ public class AcceptCommand implements Command {
 
     Logger logger = LoggerFactory.getLogger(AcceptCommand.class);
 
-    private final Helper helper;
+    private final App app;
     private final ParserCommon common;
 
-    public AcceptCommand(Helper helper, OWLAnnotationProperty defaultSearchLabel) {
-        this.helper = helper;
-        this.common = new ParserCommon(helper, defaultSearchLabel);
+    public AcceptCommand(App app, OWLAnnotationProperty defaultSearchLabel) {
+        this.app = app;
+        this.common = new ParserCommon(app, defaultSearchLabel);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class AcceptCommand implements Command {
                 sel.addAll(context.getSelectedObjects());
             }
             else {
-                sel.add(helper.mos(param));
+                sel.add(app.mos(param));
             }
         } else if (context.isSingleSelection()) {
             sel.add(context.getSelected());
@@ -49,11 +49,11 @@ public class AcceptCommand implements Command {
 
         List<OWLAxiomChange> changes = sel.stream().filter(OWLObject::isNamed).flatMap(entity -> {
             final OWLOntology target = (entity instanceof OWLNamedIndividual) ?
-                    helper.ont(Constants.DEFAULT_INDIVIDUALS_ONT) :
-                    helper.ont(Constants.DEFAULT_CLASSES_ONT);
-            return getChanges((OWLEntity) entity, helper.suggestions, target);
+                    app.ont(Constants.DEFAULT_INDIVIDUALS_ONT) :
+                    app.ont(Constants.DEFAULT_CLASSES_ONT);
+            return getChanges((OWLEntity) entity, app.suggestions, target);
         }).toList();
-        helper.mngr.applyChanges(changes);
+        app.mngr.applyChanges(changes);
         logger.info("Moved {} axioms", changes.size()/2);
         return context; // stay in current context
     }

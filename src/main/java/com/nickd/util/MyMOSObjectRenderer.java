@@ -8,18 +8,18 @@ import java.io.Writer;
 import java.util.Optional;
 
 public class MyMOSObjectRenderer extends ManchesterOWLSyntaxObjectRenderer {
-    private final Helper helper;
+    private final App app;
 
-    public MyMOSObjectRenderer(Writer writer, Helper helper) {
-        super(writer, helper.sfp);
-        this.helper = helper;
+    public MyMOSObjectRenderer(Writer writer, App app) {
+        super(writer, app.sfp);
+        this.app = app;
     }
 
     @Override
     public void visit(IRI iri) {
         // check if the IRI matches an entity in the ontology
         // could check the base of the IRI first as an optimisation
-        Optional<OWLEntity> entity = helper.entitiesForIRI(iri).findFirst();
+        Optional<OWLEntity> entity = app.entitiesForIRI(iri).findFirst();
         if (entity.isPresent()) {
             entity.get().accept(this);
         }

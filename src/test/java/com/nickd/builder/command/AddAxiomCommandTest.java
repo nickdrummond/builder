@@ -3,7 +3,7 @@ package com.nickd.builder.command;
 import com.nickd.builder.Context;
 import com.nickd.builder.RootContext;
 import com.nickd.builder.UserInput;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.junit.Before;
 import org.junit.Test;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
@@ -18,17 +18,17 @@ import static org.junit.Assert.fail;
 
 public class AddAxiomCommandTest {
 
-    private Helper helper;
+    private App app;
     private OWLAnnotationProperty rdfsLabel;
     private AddAxiomCommand command;
     private RootContext rootContext;
 
     @Before
     public void setup() throws OWLOntologyCreationException {
-        helper = new Helper();
-        rdfsLabel = helper.df.getRDFSLabel();
-        command = new AddAxiomCommand(helper, rdfsLabel);
-        rootContext = new RootContext(helper.ont);
+        app = new App();
+        rdfsLabel = app.df.getRDFSLabel();
+        command = new AddAxiomCommand(app, rdfsLabel);
+        rootContext = new RootContext(app.ont);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class AddAxiomCommandTest {
         String expression = "prop some Chew";
 
         try {
-            helper.mos(expression);
+            app.mos(expression);
             fail();
         }
         catch(ParserException e) {
@@ -56,7 +56,7 @@ public class AddAxiomCommandTest {
         String axiom = "Chewbacca Type Wook";
 
         try {
-            helper.mosAxiom(axiom);
+            app.mosAxiom(axiom);
             fail();
         }
         catch(ParserException e) {
@@ -75,7 +75,7 @@ public class AddAxiomCommandTest {
 
         String axiom = "monkey hasThe twe";
         try {
-            helper.mosAxiom(axiom);
+            app.mosAxiom(axiom);
             fail();
         } catch (ParserException e) {
             // Start pos is the beginning of the token
@@ -93,7 +93,7 @@ public class AddAxiomCommandTest {
         String axiom = "Chewbacca Type (hadRole some Tra";
 
         try {
-            helper.mosAxiom(axiom);
+            app.mosAxiom(axiom);
         }
         catch(ParserException e) {
             // Start pos is the beginning of the token
@@ -153,8 +153,8 @@ public class AddAxiomCommandTest {
         ind("Chewbacca");
 
         // Alien only available in suggest
-        OWLClass alien = helper.cls("Alien");
-        ent("Alien", alien, helper.suggestions);
+        OWLClass alien = app.cls("Alien");
+        ent("Alien", alien, app.suggestions);
 
         Context result = command.handle(new UserInput("+ Chewbacca Type Alien"), rootContext);
         assertEquals(rootContext, result);
@@ -184,27 +184,27 @@ public class AddAxiomCommandTest {
     }
 
     private OWLObjectProperty prop(String name) {
-        OWLObjectProperty p = helper.prop(name);
+        OWLObjectProperty p = app.prop(name);
         return ent(name, p);
     }
 
     private OWLNamedIndividual ind(String name) {
-        OWLNamedIndividual ind = helper.ind(name);
+        OWLNamedIndividual ind = app.ind(name);
         return ent(name, ind);
     }
 
     private OWLClass cls(String name) {
-        OWLClass ind = helper.cls(name);
+        OWLClass ind = app.cls(name);
         return ent(name, ind);
     }
 
     private <T extends OWLEntity> T ent(String name, T ent) {
-        return ent(name, ent, helper.ont);
+        return ent(name, ent, app.ont);
     }
 
     private <T extends OWLEntity> T ent(String name, T ent, OWLOntology ont) {
-        ont.addAxiom(helper.df.getOWLDeclarationAxiom(ent));
-        ont.addAxiom(helper.df.getOWLAnnotationAssertionAxiom(helper.df.getRDFSLabel(), ent.getIRI(), helper.df.getOWLLiteral(name)));
+        ont.addAxiom(app.df.getOWLDeclarationAxiom(ent));
+        ont.addAxiom(app.df.getOWLAnnotationAssertionAxiom(app.df.getRDFSLabel(), ent.getIRI(), app.df.getOWLLiteral(name)));
         return ent;
     }
 }

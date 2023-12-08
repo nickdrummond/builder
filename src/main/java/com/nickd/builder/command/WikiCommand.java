@@ -24,11 +24,11 @@ public class WikiCommand implements Command {
 
     private final Logger logger = LoggerFactory.getLogger(WikiCommand.class);
 
-    private final Helper helper;
+    private final App app;
     private final OWLAnnotationProperty defaultSearchLabel;
 
-    public WikiCommand(Helper helper, OWLAnnotationProperty defaultSearchLabel) {
-        this.helper = helper;
+    public WikiCommand(App app, OWLAnnotationProperty defaultSearchLabel) {
+        this.app = app;
         this.defaultSearchLabel = defaultSearchLabel;
     }
 
@@ -51,7 +51,7 @@ public class WikiCommand implements Command {
             String refUrl = params.get(0);
 
             try {
-                WikiPage wikiPage = forString(refUrl, helper);
+                WikiPage wikiPage = forString(refUrl, app);
 
             } catch (IOException e) {
                 logger.warn("Cannot find Wookieepedia for ${}", refUrl);
@@ -61,7 +61,7 @@ public class WikiCommand implements Command {
     }
 
     private UserInput replaceVars(UserInput input, Context currentContext) {
-        List<String> names = currentContext.getSelectedObjects().stream().map(helper::render).collect(Collectors.toList());
+        List<String> names = currentContext.getSelectedObjects().stream().map(app::render).collect(Collectors.toList());
         return new UserInput(MyStringUtils.replaceVars(input.fullText(), names));
     }
 }

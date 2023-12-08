@@ -1,6 +1,6 @@
 package com.nickd.parser;
 
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.junit.Test;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ParserException;
 import org.semanticweb.owlapi.model.*;
@@ -19,13 +19,13 @@ public class RoundtripTest {
 
     @Test
     public void shouldRoundtripAllAxiomsInStarWars() throws OWLOntologyCreationException {
-        Helper helper = new Helper(new File(DEFAULT_OWL_TO_LOAD));
+        App app = new App(new File(DEFAULT_OWL_TO_LOAD));
 
         List<OWLAxiom> skipped = new ArrayList<>();
 
         List<OWLAxiom> failed = new ArrayList<>();
 
-        helper.ont.axioms(Imports.INCLUDED).forEach(ax -> {
+        app.ont.axioms(Imports.INCLUDED).forEach(ax -> {
             Set<OWLAnnotation> annotations = ax.getAnnotations();
             if (!annotations.isEmpty()) {
                 System.out.println("stripping axiom annotations = " + annotations);
@@ -43,10 +43,10 @@ public class RoundtripTest {
                 return;
             }
 
-            String axiomStr = helper.render(ax);
+            String axiomStr = app.render(ax);
 
             try {
-                helper.mosAxiom(axiomStr);
+                app.mosAxiom(axiomStr);
             }
             catch(ParserException e) {
                 System.out.println(axiomStr);
@@ -57,6 +57,6 @@ public class RoundtripTest {
 
         assertEquals(0, failed.size());
 
-        skipped.forEach( ax -> System.out.println("skipped axiom = " + helper.render(ax)) );
+        skipped.forEach( ax -> System.out.println("skipped axiom = " + app.render(ax)) );
     }
 }

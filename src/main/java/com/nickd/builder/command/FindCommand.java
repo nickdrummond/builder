@@ -4,7 +4,7 @@ import com.nickd.builder.Context;
 import com.nickd.builder.OWLObjectListContext;
 import com.nickd.builder.UserInput;
 import com.nickd.util.FinderUtils;
-import com.nickd.util.Helper;
+import com.nickd.util.App;
 import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,19 +16,19 @@ public class FindCommand implements Command {
 
     Logger logger = LoggerFactory.getLogger(FindCommand.class);
 
-    private final Helper helper;
+    private final App app;
     private OWLAnnotationProperty defaultLabel;
 
-    public FindCommand(Helper helper, OWLAnnotationProperty defaultLabel) {
-        this.helper = helper;
+    public FindCommand(App app, OWLAnnotationProperty defaultLabel) {
+        this.app = app;
         this.defaultLabel = defaultLabel;
     }
 
     @Override
     public List<String> autocomplete(UserInput input, Context context) {
         String autocompleteWord = input.autocompleteWord();
-        List<String> results = FinderUtils.annotationContains(autocompleteWord, defaultLabel, helper)
-                .stream().map(helper::render).collect(Collectors.toList());
+        List<String> results = FinderUtils.annotationContains(autocompleteWord, defaultLabel, app)
+                .stream().map(app::render).collect(Collectors.toList());
         return results;
     }
 
@@ -41,12 +41,12 @@ public class FindCommand implements Command {
 
             String searchFor = params.get(0);
 
-            List<OWLEntity> results = FinderUtils.annotationContains(searchFor, defaultLabel, helper);
+            List<OWLEntity> results = FinderUtils.annotationContains(searchFor, defaultLabel, app);
             if (results.isEmpty()) {
                 logger.warn("Empty results for " + input);
             }
             else {
-                String name = results.size() == 1 ? helper.render(results.get(0)) : input.fullText();
+                String name = results.size() == 1 ? app.render(results.get(0)) : input.fullText();
                 return new OWLObjectListContext(name, context, results);
             }
         }

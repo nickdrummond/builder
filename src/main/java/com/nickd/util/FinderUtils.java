@@ -13,37 +13,37 @@ public class FinderUtils {
 
     public static List<OWLEntity> annotationExact(@Nonnull String value,
                                                   @Nonnull OWLAnnotationProperty searchProp,
-                                                  @Nonnull Helper helper) {
-        return annotationMatchesPredicate(searchProp, helper, ax -> literalValueEquals(ax, value));
+                                                  @Nonnull App app) {
+        return annotationMatchesPredicate(searchProp, app, ax -> literalValueEquals(ax, value));
     }
 
     public static List<OWLEntity> annotationContains(@Nonnull String value,
                                                      @Nonnull OWLAnnotationProperty searchProp,
-                                                     @Nonnull Helper helper) {
-        return annotationMatchesPredicate(searchProp, helper, ax -> literalValueContains(ax, value));
+                                                     @Nonnull App app) {
+        return annotationMatchesPredicate(searchProp, app, ax -> literalValueContains(ax, value));
     }
 
     public static List<OWLEntity> annotationContains(@Nonnull String value,
                                                      @Nonnull OWLAnnotationProperty searchProp,
                                                      @Nonnull EntityType type,
-                                                     @Nonnull Helper helper) {
-        return annotationContains(value, searchProp, helper).stream()
+                                                     @Nonnull App app) {
+        return annotationContains(value, searchProp, app).stream()
                 .filter(entity -> entity.isType(type))
                 .collect(Collectors.toList());
     }
 
     public static List<OWLEntity> annotationMatchesPredicate(@Nonnull OWLAnnotationProperty searchProp,
-                                                             @Nonnull Helper helper,
+                                                             @Nonnull App app,
                                                              @Nonnull Predicate<OWLAnnotationAssertionAxiom> test) {
 
-        return helper.mngr.ontologies()
+        return app.mngr.ontologies()
                 .flatMap(o -> o.axioms(AxiomType.ANNOTATION_ASSERTION))
                 .filter(ax -> ax.getProperty().equals(searchProp))
                 .filter(test)
                 .map(OWLAnnotationAssertionAxiom::getSubject)
                 .map(OWLAnnotationObject::asIRI)
                 .flatMap(Optional::stream)
-                .flatMap(helper::entitiesForIRI)
+                .flatMap(app::entitiesForIRI)
                 .toList();
     }
 
